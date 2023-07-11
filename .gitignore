@@ -1,0 +1,22 @@
+#
+# core
+#
+/.env*
+/docker-compose.override.yml
+!.gitkeep
+*.pydevproject
+.metadata
+tmp/
+*.tmp
+*.swp
+*~.nib
+*.exe
+*.o
+*.docx
+.settings/
+~$*
+lrc/
+lrc_git/
+graph_wander_nodes/
+**/.build
+**/build

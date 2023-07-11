@@ -1,0 +1,5 @@
+CC=g++
+CFLAGS=-I.
+
+hellomake: main.o other.o
+	$(CC) -o hellomake main.o other.o
