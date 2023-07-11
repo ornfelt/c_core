@@ -32,7 +32,7 @@ Forwarding reference is "an rvalue reference to a cv-unqualified template parame
 as in:
 template <class T> void foo(T&& );
 
-which means the above function can take both l-value and r-value reference. 
+which means the above function can take both l-value and r-value reference.
 The important feature of universal references / forwarding references is that they can
 bind to objects and expressions of any value category.
 
@@ -50,7 +50,6 @@ int main() {
     observe(i);   // OK, lvalue
     observe(42);  // OK, rvalue
 }
-
 
 This applies even when that type int comes from type deduction:
 
@@ -95,7 +94,7 @@ If you see code using std::forward<T> without an originating T&&, it’s almost 
 buggy. If you see code using (deduced) T&& without std::forward<T>, it’s either buggy or
 it’s C++20 Ranges. (Ranges ill-advisedly uses value category to denote lifetime rather
 than pilferability, so Ranges code tends to forward rvalueness much more conservatively
-than ordinary C++ code does.)
+than ordinary C++ code does).
 
 ----------------------------------------------
 Reference to pointer:
@@ -105,21 +104,19 @@ void myfunc(string*& val)
     // Do stuff to the string pointer
 }
 
-
 void myfunc2(string* const& val)
 {
     // Do stuff to the string pointer
 }
 
 int main()
-// sometime later 
 {
     // ...
     string s;
     string* ps = &s;
 
-    myfunc( ps);   // OK because ps is not a temporary
-    myfunc2( &s);  // OK because the parameter is a const&
+    myfunc(ps);   // OK because ps is not a temporary
+    myfunc2(&s);  // OK because the parameter is a const&
     // ...
 
     return 0;
@@ -134,8 +131,8 @@ pointer, or a pointer to pointer:
 
 void myfunc(string*& val)
 {
-	//val is valid even after function call
-	val = new std::string("Test");
+    //val is valid even after function call
+    val = new std::string("Test");
 }
 
 ----------------------------------------------
@@ -143,10 +140,10 @@ C++17 introduced [[nodiscard]] attribute. When you declare a function [[nodiscar
 indicate that its return value should not be ignored. This can help prevent bugs related
 to:
 
-    Memory leak, in case the function returns a pointer to unmanaged memory
-    Performance, in case the discarded value is costly to construct
-	Security, in case the return value indicates an error condition that needs to be taken
-	into account
+    Memory leak, in case the function returns a pointer to unmanaged memory.
+    Performance, in case the discarded value is costly to construct.
+    Security, in case the return value indicates an error condition that needs to be taken
+    into account.
 
 ----------------------------------------------
 A void pointer is a pointer that has no associated data type with it. A void pointer can
@@ -183,19 +180,23 @@ calloc() allocates the memory and also initializes every byte in the allocated m
 get 0 as it has already been initialized to 0 by calloc().
 
 malloc() takes a single argument, which is the number of bytes to allocate. Is faster.
-calloc() takes two arguments: 
-1) Number of blocks to be allocated. 
+calloc() takes two arguments:
+1) Number of blocks to be allocated.
 2) Size of each block in bytes.
 
 malloc() vs new:
 New calls the constructors, malloc/calloc does not.
 new is an operator, while malloc() is a function.
 return type: new returns exact data type, while malloc() returns void *.
-Failure Condition: On failure, malloc() returns NULL where as new throws bad_alloc exception.
+Failure Condition: On failure, malloc() returns NULL where as new throws
+bad_alloc exception.
 
-Memory: In case of new, memory is allocated from free store where as in malloc() memory allocation is done from heap.
-Size: Required size of memory is calculated by compiler for new, where as we have to manually calculate size for malloc().
-Buffer Size: malloc() allows to change the size of buffer using realloc() while new doesn’t
+Memory: In case of new, memory is allocated from free store where as in
+malloc() memory allocation is done from heap.
+Size: Required size of memory is calculated by compiler for new, where as we
+have to manually calculate size for malloc().
+Buffer Size: malloc() allows to change the size of buffer using realloc() while
+new doesn’t.
 
 Dangling, Void, Null and Wild Pointers:
 
@@ -214,7 +215,7 @@ int* fun()
     int x = 5;
     return &x;
 }
-   
+
 int main()
 {
     int *p = fun();
@@ -224,7 +225,8 @@ int main()
     return 0;
 }
 
-The above problem doesn’t appear (or p doesn’t become dangling) if x is a static variable.
+The above problem doesn’t appear (or p doesn’t become dangling) if x is a
+static variable.
 static int x = 5;
 
 void main()
@@ -233,7 +235,7 @@ void main()
    {
        int ch;
        ptr = &ch;
-   } 
+   }
    // Here ptr is dangling pointer
 }
 
@@ -249,16 +251,17 @@ valid address for any member or object.
 NULL vs Void Pointer – Null pointer is a value, while void pointer is a type.
 
 Wild pointer:
-A pointer that has not been initialized to anything (not even NULL) is known as wild pointer. 
+A pointer that has not been initialized to anything (not even NULL) is known as wild pointer.
 
 int *p;  /* wild pointer */
 int x = 10;
-// p is not a wild pointer now
 p = &x;
+// p is not a wild pointer now
 
 ----------------------------------------------
 In Java, methods are virtual by default and can be made non-virtual by using the final
 keyword. In C++ we need to:
+
 // Superclass
 class Base {
 public:
@@ -269,17 +272,17 @@ public:
         cout << "Base::show() called";
     }
 };
- 
+
 // Subclass
 class Derived : public Base {
- 
+
 public:
     void show()
     {
         cout << "Derived::show() called";
     }
 };
- 
+
 int main()
 {
     Derived d;
@@ -291,22 +294,27 @@ int main()
 
 ----------------------------------------------
 Convert a std::vector<double> to a double array[]:
-There's a fairly simple trick to do so, since the spec now guarantees vectors store their elements contiguously:
+There's a fairly simple trick to do so, since the spec now guarantees vectors
+store their elements contiguously:
 std::vector<double> v;
 double* a = &v[0];
 
-However, the above trick doesn't copy, it creates a pointer that points to the actual array the vector is using internally. If you want to copy:
+However, the above trick doesn't copy, it creates a pointer that points to the
+actual array the vector is using internally. If you want to copy:
 double arr[100];
 std::copy(v.begin(), v.end(), arr);
 
 Using transform() function in C++ STL:
-transform() function in C++ is used to copy a range of elements from one container to another based upon a unary operation.
+transform() function in C++ is used to copy a range of elements from one
+container to another based upon a unary operation.
 int n = v.size();
 int arr[n];
 std::transform(v.begin(),v.end(),arr,[](const int& x){return x;});
 
 Using data() function in C++ STL:
-data() function in C++ is used to copy a vector to the array by returning a pointer to the first element in the array which is used internally by the vector.
+data() function in C++ is used to copy a vector to the array by returning a
+pointer to the first element in the array which is used internally by the
+vector.
 int * arr = v.data();
 
 ----------------------------------------------------------------------------------
@@ -322,26 +330,28 @@ Here's an example class with a constructor that can be used for implicit convers
 class Foo
 {
 private:
-  int m_foo;
+    int m_foo;
 
 public:
-  // single parameter constructor, can be used as an implicit conversion
-  Foo (int foo) : m_foo (foo) {}
+    // single parameter constructor, can be used as an implicit conversion
+    Foo (int foo) : m_foo (foo) {}
 
-  int GetFoo () { return m_foo; }
+    int GetFoo () { return m_foo; }
 };
+
 Here's a simple function that takes a Foo object:
 
 void DoBar (Foo foo)
 {
-  int i = foo.GetFoo ();
+    int i = foo.GetFoo();
 }
 and here's where the DoBar function is called:
 
 int main ()
 {
-  DoBar (42);
+    DoBar(42);
 }
+
 The argument is not a Foo object, but an int. However, there exists a constructor for Foo
 that takes an int so this constructor can be used to convert the parameter to the correct
 type.
@@ -373,7 +383,10 @@ An rvalue reference is formed by placing an && after some type.
 
 A a;
 A&& a_ref2 = a;  // an rvalue reference
-An rvalue reference behaves just like an lvalue reference except that it can bind to a temporary (an rvalue), whereas you can not bind a (non const) lvalue reference to an rvalue.
+
+An rvalue reference behaves just like an lvalue reference except that it can
+bind to a temporary (an rvalue), whereas you can not bind a (non const) lvalue
+reference to an rvalue.
 
 A&  a_ref3 = A();  // Error!
 A&& a_ref4 = A();  // Ok
@@ -383,8 +396,7 @@ is that it can bind to an rvalue like a temporary without having to be const. Th
 syntax is now legal:
 T&& r = T();
 
-rvalue references primarily provide for the following:
-Move semantics:
+rvalue references primarily provide for Move semantics.
 
 ----------------------------------------------
 
@@ -402,70 +414,70 @@ Rewriting loop:
 
 int calculate(int bottom, int top)
 {
-	if (top > bottom)
-	{
-		int sum = 0;
-		for(int number = bottom; number <= top; number++){
-			if (number % 2 == 0)
-				sum += number;
-		}
+    if (top > bottom)
+    {
+        int sum = 0;
+        for(int number = bottom; number <= top; number++){
+            if (number % 2 == 0)
+                sum += number;
+        }
 
-		return sum;
-	}
-	else
-		return 0;
+        return sum;
+    }
+    else
+        return 0;
 }
 
 Using C++ 20 views::iota:
 
 int calculate(int bottom, int top)
 {
-	if (top > bottom) {
-		int sum = 0;
-		// Use views::iota adapter to loop through range instead
-		// Top + 1 since it's not inclusive (doesn't include the last one)
-		for(int number : std::views::iota(bottom, top + 1)) {
-			if (number % 2 == 0)
-				sum += number;
-		}
-		return sum;
-	}
-	else
-		return 0;
+    if (top > bottom) {
+        int sum = 0;
+        // Use views::iota adapter to loop through range instead
+        // Top + 1 since it's not inclusive (doesn't include the last one)
+        for(int number : std::views::iota(bottom, top + 1)) {
+            if (number % 2 == 0)
+                sum += number;
+        }
+        return sum;
+    }
+    else
+        return 0;
 }
 
 Using filter to filter out odd values, replaces the if check:
 
 int calculate(int bottom, int top)
 {
-	if (top > bottom) {
-		int sum = 0;
-		// Lambda 
-		auto even = [](auto e) { return e % 2 == 0; };
+    if (top > bottom) {
+        int sum = 0;
+        // Lambda 
+        auto even = [](auto e) { return e % 2 == 0; };
 
-		for(int number : std::views::iota(bottom, top + 1) | std::views::filter(even)) {
-			sum += number;
-		}
-		return sum;
-	}
-	else
-		return 0;
+        for(int number : std::views::iota(bottom, top + 1) | std::views::filter(even)) {
+            sum += number;
+        }
+        return sum;
+    }
+    else
+        return 0;
 }
 
 Replace int sum and for loop with accumulate:
 
 int calculate(int bottom, int top)
 {
-	if (top > bottom) {
-		int sum = 0;
-		// Lambda 
-		auto even = [](auto e) { return e % 2 == 0; };
+    if (top > bottom) {
+        int sum = 0;
+        // Lambda 
+        auto even = [](auto e) { return e % 2 == 0; };
 
-		auto evens = std::views::iota(bottom, top + 1) | std::views::filter(even);
-		return std::accumulate(evens.begin(), evens.end(), 0);
-	}
-	else
-		return 0;
+        auto evens = std::views::iota(bottom, top + 1) | std::views::filter(even);
+        return std::accumulate(evens.begin(), evens.end(), 0);
+    }
+    else
+        return 0;
 }
 
 ----------------------------------------------------------------------------------
@@ -475,103 +487,105 @@ Basic string class to demonstrate why we might need moving:
 
 #include <iostream>
 class String {
-public:
-	String() = default;
-	String(const char* string)
-	{
-		printf("Created!\n");
-		// null termination char needed as well, but we skip for this example
-		m_Size = strlen(string);
-		m_Data = new char[m_Size];
-		// Move source string to m_Data buffer
-		memcpy(m_Data, string, m_Size);
-	}
+    public:
+        String() = default;
+        String(const char* string)
+        {
+            printf("Created!\n");
+            // null termination char needed as well, but we skip for this example
+            m_Size = strlen(string);
+            m_Data = new char[m_Size];
+            // Move source string to m_Data buffer
+            memcpy(m_Data, string, m_Size);
+        }
 
-	// We also add a way to print the string
-	void Print()
-	{
-		for(uint32_t i = 0; i < m_Size; i++)
-			printf("%c", m_Data[i]);
+        // We also add a way to print the string
+        void Print()
+        {
+            for(uint32_t i = 0; i < m_Size; i++)
+                printf("%c", m_Data[i]);
 
-		printf("\n");
-	}
+            printf("\n");
+        }
 
-private:
-	char* m_data;
-	uint32_t m_Size;
+    private:
+        char* m_Data;
+        uint32_t m_Size;
 };
 
-int main(){
-	std::cin.get();
+int main() {
+    std::cin.get();
 }
 
 // Entity class that will consume our string
 class Entity {
-public:
-	Entity(const String& name) : m_Name(name)
-	{
-	}
+    public:
+        Entity(const String& name) : m_Name(name)
+    {
+    }
 
-	void PrintName()
-	{
-		m_Name.Print();
-	}
+        void PrintName()
+        {
+            m_Name.Print();
+        }
 
-private:
-	String m_Name;
+    private:
+        String m_Name;
 };
 
 int main()
 {
-	Entity entity("Cherno"); // Using implicit constructor
-	// You can do this as well for clarity (what actually happens above)
-	Entity entity(String("Cherno"));
+    Entity entity("Cherno"); // Using implicit constructor
+    // You can do this as well for clarity (what actually happens above)
+    Entity entity(String("Cherno"));
 
-	std::cin.get();
+    std::cin.get();
 }
 
 // For the above to work we need a copy constructor in String class
 // Put the functions below the String constructor
 String(const String& other)
 {
-	printf("Copied!\n");
-	m_Size = other.m_Size; // Copy from other
-	m_Data = new char[m_Size];
-	memcpy(m_Data, other.m_Data, m_Size); // Copy from other
+    printf("Copied!\n");
+    m_Size = other.m_Size; // Copy from other
+    m_Data = new char[m_Size];
+    memcpy(m_Data, other.m_Data, m_Size); // Copy from other
 }
 
 ~String()
 {
-	printf("Destroyed!\n");
-	delete m_Data;
+    printf("Destroyed!\n");
+    delete m_Data;
 }
 
 
 // The bad thing is that to copy a string we need to allocate memory on the heap due to:
 String(const String& other)
-	...
-	m_Data = new char[m_Size];
-	...
+{
+    ...
+    m_Data = new char[m_Size];
+    ...
+}
 
 // We just want to move it, not actually copy it. We can do that by creating a move
 // constructor
 
 // Takes rvalue reference, noexcept since it won't throw exceptions
-String(String && other) noexcept
+String(String&& other) noexcept
 {
-	printf("Moved!\n");
-	m_Size = other.m_Size; // Copy from other
-	m_Data = other.m_Data; // Make sure that our pointer points to the same data as other
-	// If we leave it here, the problem is that the destructor of the other string will be
-	// called and it will remove the m_Data that the new string now points to...
-	// We also need to do this (take control over other.m_Data):
-	// The below will create a hollow object, so when it gets destroyed it will delete
-	// nullptr which is nothing (doesn't do anything)
-	other.m_Data = nullptr;
-	other.m_Size = 0;
+    printf("Moved!\n");
+    m_Size = other.m_Size; // Copy from other
+    m_Data = other.m_Data; // Make sure that our pointer points to the same data as other
+    // If we leave it here, the problem is that the destructor of the other string will be
+    // called and it will remove the m_Data that the new string now points to...
+    // We also need to do this (take control over other.m_Data):
+    // The below will create a hollow object, so when it gets destroyed it will delete
+    // nullptr which is nothing (doesn't do anything)
+    other.m_Data = nullptr;
+    other.m_Size = 0;
 }
 
-// To call the move constructor we need to add a Entity constructor that takes a
+// To call the move constructor we need to add an Entity constructor that takes a
 // temporary:
 // The (String&& is necessary to cast it to a temporary, otherwise the move constructor
 // won't be called. Copy will be called instead...
@@ -600,26 +614,26 @@ If we wish to use the move constructor with the = operator:
 // This is a move assignment operator
 String& operator=(String&& other) noexcept
 {
-	// In the move constructor above we're actually moving another object into the current
-	// object. In this case we need to overwrite the current object because the current
-	// object might have some memory allocated. so if we do m_Data = other.m_Data we create a
-	// memory leak because then we can't delete that old data...
-	// So, we need to delete our current data
+    // In the move constructor above we're actually moving another object into the current
+    // object. In this case we need to overwrite the current object because the current
+    // object might have some memory allocated. so if we do m_Data = other.m_Data we create a
+    // memory leak because then we can't delete that old data...
+    // So, we need to delete our current data
 
-	// We also need to check that other isn't the same as this.
-	// Otherwise something like: dest = std::move(dest) would delete the current data
-	if (this != &other)
-	{
-		delete[] m_Data;
+    // We also need to check that other isn't the same as this.
+    // Otherwise something like: dest = std::move(dest) would delete the current data
+    if (this != &other)
+    {
+        delete[] m_Data;
 
-		printf("Moved (=operator)!\n");
-		m_Size = other.m_Size; // Copy from other
-		m_Data = other.m_Data; // Make sure that our pointer points to the same data as other
-		other.m_Data = nullptr;
-		other.m_Size = 0;
-	}
+        printf("Moved (=operator)!\n");
+        m_Size = other.m_Size; // Copy from other
+        m_Data = other.m_Data; // Make sure that our pointer points to the same data as other
+        other.m_Data = nullptr;
+        other.m_Size = 0;
+    }
 
-	return *this; // Return reference to the current object
+    return *this; // Return reference to the current object
 }
 
 // To test the move assignment operator in main we can do:
@@ -630,6 +644,7 @@ dest = std::move(apple);
 // Now apple points to nothing since dest stole apple's data
 An operator is basically a function, so we can replace dest = std::move(apple) with:
 dest.operator=(std::move(apple));
+
 // This won't work since we're not actually calling the assignment operator. We're just
 constructing a new string that happens to use a temporary value so the move constructor is
 called:
@@ -659,7 +674,7 @@ int& foo()
 
 int main()
 {
-    decltype(foo()) a = foo(); //a is an `int&`
+    decltype(foo()) a = foo(); // a is an `int&`
     auto b = foo(); //b is an `int`
     b = 2;
 
@@ -683,7 +698,7 @@ In the cases where auto can be used, it is more concise than decltype, as you do
 to provide the expression from which the type will be inferred.
 
 auto x = foo();                           // more concise than `decltype(foo()) x`
-std::vector<decltype(foo())> v{ foo() };  // cannot use `auto`
+std::vector<decltype(foo())> v { foo() };  // cannot use `auto`
 The keyword auto is also used in a completely unrelated context, when using trailing
 return types for functions:
 
@@ -693,7 +708,7 @@ trailing return type. While the example above can be trivially converted to old 
 generic programming it is useful:
 
 template <typename T, typename U>
-auto sum( T t, U u ) -> decltype(t+u)
+auto sum(T t, U u) -> decltype(t+u)
 Note that in this case, auto cannot be used to define the return type.
 
 ----------------------------------------------
@@ -714,39 +729,39 @@ using namespace std;
 // A Functor
 class increment
 {
-private:
-	int num;
-public:
-	increment(int n) : num(n) { }
+    private:
+        int num;
+    public:
+        increment(int n) : num(n) { }
 
-	// This operator overloading enables calling
-	// operator function () on objects of increment
-	int operator () (int arr_num) const {
-		return num + arr_num;
-	}
+        // This operator overloading enables calling
+        // operator function () on objects of increment
+        int operator () (int arr_num) const {
+            return num + arr_num;
+        }
 };
 
 // Driver code
 int main()
 {
-	int arr[] = {1, 2, 3, 4, 5};
-	int n = sizeof(arr)/sizeof(arr[0]);
-	int to_add = 5;
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr)/sizeof(arr[0]);
+    int to_add = 5;
 
-	transform(arr, arr+n, arr, increment(to_add));
+    transform(arr, arr+n, arr, increment(to_add));
 
-	for (int i=0; i<n; i++)
-		cout << arr[i] << " ";
+    for (int i=0; i<n; i++)
+        cout << arr[i] << " ";
 }
 
-See what’s happening? As transform requires a unary function(a function taking only one
+See what’s happening? As transform requires a unary function (function taking only one
 argument) for an array, we cannot pass a number to increment(). And this would, in effect,
 make us write several different functions to add each number. What a mess. This is where
 functors come into use.
 
-A functor (or function object) is a C++ class that acts like a function. Functors are
-called using the same old function call syntax. To create a functor, we create a object
-that overloads the operator().
+A functor (or function object) is a C++ class that acts like a function.
+Functors are called using the function call syntax. To create a functor, we
+create an object that overloads the operator().
 
 ----------------
 Example: Sorting Mail
@@ -756,19 +771,20 @@ to take two messages, and we can have its constructor store the field we wish to
 class Message
 {
     public:
-        std::string getHeader (const std::string& header_name) const;
+        std::string getHeader(const std::string& header_name) const;
         // other methods...
 };
- 
+
 class MessageSorter
 {
     public:
         // take the field to sort by in the constructor
-        MessageSorter (const std::string& field) : _field( field ) {}
+        MessageSorter (const std::string& field) : _field(field) {}
+
         bool operator() (const Message& lhs, const Message& rhs)
         {
             // get the field to sort by and make the comparison
-            return lhs.getHeader( _field ) < rhs.getHeader( _field );
+            return lhs.getHeader(_field) < rhs.getHeader(_field);
         }
     private:
         std::string _field;
@@ -778,7 +794,7 @@ Now if we had a vector of Messages, we could use the STL sort function to sort t
 std::vector<Message> messages;
 // read in messages
 MessageSorter comparator;
-sort( messages.begin(), messages.end(), comparator );
+sort(messages.begin(), messages.end(), comparator);
 
 ----------------
 A functor is pretty much just a class which defines the operator(). That lets you create
@@ -786,11 +802,11 @@ objects which "look like" a function:
 
 // this is a functor
 struct add_x {
-  add_x(int val) : x(val) {}  // Constructor
-  int operator()(int y) const { return x + y; }
+    add_x(int val) : x(val) {}  // Constructor
+    int operator()(int y) const { return x + y; }
 
-private:
-  int x;
+    private:
+    int x;
 };
 
 // Now you can use it like this:
@@ -800,10 +816,12 @@ assert(i == 50); // and it added 42 to its argument
 
 std::vector<int> in; // assume this contains a bunch of values
 std::vector<int> out(in.size());
+
 // Pass a functor to std::transform, which calls the functor on every element 
 // in the input sequence, and stores the result to the output sequence
-std::transform(in.begin(), in.end(), out.begin(), add_x(1)); 
+std::transform(in.begin(), in.end(), out.begin(), add_x(1));
 assert(out[i] == in[i] + 1); // for all i
+
 There are a couple of nice things about functors. One is that unlike regular functions,
 they can contain state. The above example creates a function which adds 42 to whatever you
 give it. But that value 42 is not hardcoded, it was specified as a constructor argument
@@ -827,40 +845,40 @@ it'd have to dereference the pointer at runtime, and then make the call.
 
 ----------------------------------------------
 How to make your STRINGS FASTER in C++!
-Strings are bad / slow since they allocate memory. Lots of code in that runs when using
-std::string allocates memory.
+Strings are bad / slow since they allocate memory. std::string allocates memory.
 
 static uint32_t s_AllocCount = 0;
 
 void* operator new(size_t size)
 {
-	s_AllocCount++;
-	std::cout << "Allocating " << size << " bytes\n";
-	return malloc(size);
+    s_AllocCount++;
+    std::cout << "Allocating " << size << " bytes\n";
+    return malloc(size);
 }
 
 Example:
 // const string reference (no copy when sent to the function)
 void PrintName(const std::string& name)
 {
-	std::cout << name << std::endl;
+    std::cout << name << std::endl;
 }
 
 int main()
 {
-	std::string name = "Yan Chernikov";
-	// Let's see how many times we copy we can call PrintName
-	// Do see this we can overload the new operator (see above)
-	PrintName(name);
+    std::string name = "Yan Chernikov";
+    // Let's see how many times we copy when calling PrintName
+    // To see this we can overload the new operator (see above)
+    PrintName(name);
 
-	// Print final allocations
-	std::cout << s_AllocCount << " allocations" << std::endl;
-	std::cin.get();
+    // Print final allocations
+    std::cout << s_AllocCount << " allocations" << std::endl;
+    std::cin.get();
 }
 
-Running the above code results in "Allocating 8 bytes"
-1 allocations. Using break point we can see that std::string name = "Yan.." is causing the
+Running the above code result in "Allocating 8 bytes" 1 allocations.
+Using a break point we can see that std::string name = "Yan.." is causing the
 heap allocation.
+
 What if we skip that and do this instead?
 PrintName("Yan Chernikov"); 
 
@@ -870,14 +888,14 @@ because PrintName expects an std::string.
 If we now play around a bit in the main method and do this instead:
 int main()
 {
-	std::string name = "Yan Chernikov";
-	std::string firstName = name.substring(0, 3); // First 3 chars
-	std::string lastName = name.substring(4, 9); // First 3 chars
-	PrintName(firstName);
+    std::string name = "Yan Chernikov";
+    std::string firstName = name.substring(0, 3); // First 3 chars
+    std::string lastName = name.substring(4, 9); // First 3 chars
+    PrintName(firstName);
 
-	// Print final allocations
-	std::cout << s_AllocCount << " allocations" << std::endl;
-	std::cin.get();
+    // Print final allocations
+    std::cout << s_AllocCount << " allocations" << std::endl;
+    std::cin.get();
 }
 
 With the above we get Allocating 8 bytes 3 times and "3 allocations".
@@ -897,33 +915,33 @@ Now we can do:
 #if STRING_VIEW
 void PrintName(const std::string_view name) // No need for reference
 {
-	std::cout << name << std::endl;
+    std::cout << name << std::endl;
 }
 #else
 void PrintName(const std::string& name)
 {
-	std::cout << name << std::endl;
+    std::cout << name << std::endl;
 }
 #endif
 
 int main()
 {
-	std::string name = "Yan Chernikov";
+    std::string name = "Yan Chernikov";
 #if STRING_VIEW
-	// c_str returns a const char pointer
-	std::string_view firstName(name.c_str(), 3);
-	std::string_view lastName(name.c_str() + 4, 9);
+    // c_str returns a const char pointer
+    std::string_view firstName(name.c_str(), 3);
+    std::string_view lastName(name.c_str() + 4, 9);
 #else
-	std::string firstName = name.substring(0, 3); // First 3 chars
-	std::string lastName = name.substring(4, 9); // First 3 chars
+    std::string firstName = name.substring(0, 3); // First 3 chars
+    std::string lastName = name.substring(4, 9); // First 3 chars
 #endif
 
-	PrintName(firstName);
-	// We also need to add std::string_view to the PrintName arguments, see above
+    PrintName(firstName);
+    // We also need to add std::string_view to the PrintName arguments, see above
 
-	// Print final allocations
-	std::cout << s_AllocCount << " allocations" << std::endl;
-	std::cin.get();
+    // Print final allocations
+    std::cout << s_AllocCount << " allocations" << std::endl;
+    std::cin.get();
 }
 
 The above only gives 1 allocation. To get 0 allocations we can simply use:
@@ -944,6 +962,7 @@ std::cin.get();
 const char name* = "Cherno";
 std::cout << name << std::endl;
 std::cin.get();
+
 If const is removed, it might look like it should work but its undefined behavior...
 Some compilers will compile but most won't...
 MSVC compiles the above 
@@ -951,25 +970,26 @@ It doesn't work because you've created a pointer to the mem location of a string
 (stored in read only). If you go into the compiler settings -> all configs -> C++ ->
 Output files -> Assembler Output: set assembly with source code.
 If the project is built in release now we can see in the assembly code that there's:
-CONST	SEGMENT
+CONST   SEGMENT
 xxxxxx Cherno
-CONST	ENDS
+CONST   ENDS
+
 If we look in the exe file in HxD (hex editor) we can see Cherno inside the binary.
 If you try to edit the pointer like this:
 const char name* = "Cherno";
 name[2] = 'a';
 std::cout << name << std::endl;
 std::cin.get();
+
 In release mode, the code will run but the character won't be changed (due to compiler
 optimizations in release mode).
 In debug mode it will fail saying "Exception thrown: write access violation".
 You can modify it if you change it to: const char name[] = "Cherno";
 
 const char* name = u8"Cherno"; // You can skip the u8. 1 byte per char. Utf8
-const wchar_t* name2 = L"Cherno"; // 2 bytes per char. Differs from char16_t since 
-
+const wchar_t* name2 = L"Cherno"; // 2 bytes per char. Differs from char16_t:
 // 16 bits per char or 2 bytes per char. Adhere's with utf16
-const char16_t* name3 = u"Cherno"; 
+const char16_t* name3 = u"Cherno";
 // 32 bits or 4 bytes per char. Adhere's with utf32
 const char32_t* name4 = U"Cherno";
 
@@ -1026,52 +1046,49 @@ isn't modifying the class.
 For example:
 class Entity
 {
-	private:
-		int m_X, m_Y;
-	public:
-		int GetX() const { return m_X; }
-		void SetX(int x) { m_X = x; }
+    private:
+        int m_X, m_Y;
+    public:
+        int GetX() const { return m_X; }
+        void SetX(int x) { m_X = x; }
 }
 
 Note: if you really need to modify a variable inside a const method (maybe for debugging
 purposes) then you can do it thanks to the mutable keyword:
 class Entity
 {
-	private:
-		int* m_X, m_Y; // Only m_X is pointer in this case, not m_Y. Put * before m_Y if
-		//you want it to be pointer as well...
-		mutable int var;
-	public:
-		// This means that we're returning a pointer that can't be modified, the contents
-		// of the pointer can't be modified and the method promises not to modify the
-		// Entity class.
-		int GetX() const
-		{ 
-			var = 2; // Allowed thanks to mutable
-			return m_X; 
-		}
-		void SetX(int x) { m_X = x; }
+    private:
+        int* m_X, m_Y; // Only m_X is pointer in this case, not m_Y. Put * before m_Y if
+                       //you want it to be pointer as well...
+        mutable int var;
+    public:
+        int GetX() const
+        {
+            var = 2; // Allowed thanks to mutable
+            return m_X;
+        }
+        void SetX(int x) { m_X = x; }
 }
 
 If you wish to have x as pointer and have it constant all around then you can do this
 mysterious code:
 class Entity
 {
-	private:
-		int* m_X, m_Y; // Only m_X is pointer in this case, not m_Y. Put * before m_Y if
-		//you want it to be pointer as well...
-	public:
-		// This means that we're returning a pointer that can't be modified, the contents
-		// of the pointer can't be modified and the method promises not to modify the
-		// Entity class.
-		const int const GetX() const { return m_X; } // C++...
-		void SetX(int x) { m_X = x; }
+    private:
+        int* m_X, m_Y; // Only m_X is pointer in this case, not m_Y. Put * before m_Y if
+                       //you want it to be pointer as well...
+    public:
+        // This means that we're returning a pointer that can't be modified, the contents
+        // of the pointer can't be modified and the method promises not to modify the
+        // Entity class.
+        const int const GetX() const { return m_X; } // C++...
+        void SetX(int x) { m_X = x; }
 }
 
 void printEntity(const Entity& e)
 {
-	// const reference means we can't modify the Entity like e = Entity();
-	std::cout << e.GetX() << std::endl;
+    // const reference means we can't modify the Entity like e = Entity();
+    std::cout << e.GetX() << std::endl;
 }
 
 Notes:
@@ -1087,51 +1104,51 @@ int* m_X, *m_Y; // This will create two pointers
 ----------------------------------------------
 Smart pointers:
 Unique pointers are unique (can't be copied since when it goes out of scope, it will get
-destroyed and that would cause problems for another pointing pointing to the same memory)
+destroyed and that would cause problems for another pointer pointing to the same memory)
 It's a scoped pointer that gets destroyed after going out of scope...
 
 For example:
 class Entity {
-	public:
-	// Constructor and destructor so that we can see creation / deletion
-	Entity() { std::cout << "Created Entity!" << std::endl; }
-	~Entity() { std::cout << "Destroyed Entity!" << std::endl; }
-	void Print() {}
+    public:
+        // Constructor and destructor so that we can see creation / deletion
+        Entity() { std::cout << "Created Entity!" << std::endl; }
+        ~Entity() { std::cout << "Destroyed Entity!" << std::endl; }
+        void Print() {}
 };
 
 // then create unique pointer
 int main () {
-// Create scope manually with {}
-	{
-		//std::unique_ptr<Entity> entity(new Entity());
-		// The preffered way is to create unique pointer like this, due to Exception safety (to
-		// avoid dangling pointer / memory leak if the constructor throws exception...)
-		std::unique_ptr<Entity> entity = std::make_unique<Entity>();
-		entity->Print();
-	}
-	std:.cin.get();
+    // Create scope manually with {}
+    {
+        //std::unique_ptr<Entity> entity(new Entity());
+        // The preffered way is to create unique pointer like this, due to Exception safety (to
+        // avoid dangling pointer / memory leak if the constructor throws exception...)
+        std::unique_ptr<Entity> entity = std::make_unique<Entity>();
+        entity->Print();
+    }
+    std:.cin.get();
 }
 
 With shared pointer you can copy the pointer. It uses reference counting.
 The pointer gets deleted when reference count is 0...
 int main () {
-// Create scope manually with {}
-	{
-		// Use this way to create shared pointer as well more important
-		// due to efficiency, otherwise if you create it with new, you will effectively
-		// construct a new entity and pass it to make shared which also needs to construct
-		// its control block, if you use make_shared it can do both of these together
-		std::shared_ptr<Entity> sharedEntity = std::make_shared<Entity>();
-		std::shared_ptr<Entity> e0 = sharedEntity; // Now this works
+    // Create scope manually with {}
+    {
+        // Use this way to create shared pointer as well - more important
+        // due to efficiency, otherwise if you create it with new, you will effectively
+        // construct a new entity and pass it to make shared which also needs to construct
+        // its control block, if you use make_shared it can do both of these together
+        std::shared_ptr<Entity> sharedEntity = std::make_shared<Entity>();
+        std::shared_ptr<Entity> e0 = sharedEntity; // Now this works
 
-		// You can use weak_ptr to not take ownership of the Entity since it won't
-		// increase the ref count!
-		std::weak_ptr<Entity> weakEntity = sharedEntity; // Won't be kept alive when
-		// shared pointer goes out of scope...
-		sharedEntity->Print();
-		// Try to prioritize using unique_ptr first, otherwise shared_ptr if needed.
-	}
-	std:.cin.get();
+        // You can use weak_ptr to NOT take ownership of the Entity since it won't
+        // increase the ref count!
+        std::weak_ptr<Entity> weakEntity = sharedEntity; // Won't be kept alive when
+                                                         // shared pointer goes out of scope...
+        sharedEntity->Print();
+        // Try to prioritize using unique_ptr first, otherwise shared_ptr if needed.
+    }
+std:.cin.get();
 }
 
 ----------------------------------------------
@@ -1140,10 +1157,10 @@ Templates in C++:
 template<typename T>
 void Print(T value)
 {
-	std::cout << value << std::endl;
-	// If you misspell value it will still compile UNLESS you call the function in main
-	// for example. If you don't call it the code will not be generated for templates...
-	//std::cout << val << std::endl;
+    std::cout << value << std::endl;
+    // If you misspell value it will still compile UNLESS you call the function in main
+    // for example. If you don't call it the code will not be generated for templates...
+    //std::cout << val << std::endl;
 }
 
 In template<typename T> you can also write template<class T> (same thing)...
@@ -1152,39 +1169,39 @@ You can call it with a specified type: Print<int>(5);
 You can just use Print(5) or Print("Cherno") since the compiler can work it out for these
 types...
 
-Use-case scenario when creating a stack-allocated array without knowsing size at compile
+Use-case scenario when creating a stack-allocated array without knowing size at compile
 time, and without using alloca. Sort of C-styled array:
 
 template<int N>
 class Array
 {
-private:
-	// We can't use a variable size since its a stack allocated array and it needs to be
-	// known at compile-time
-	// int m_Array[size];
-	// int m_Array[10]; // This won't be dynamic
-	int m_Array[N]; // This works!
+    private:
+        // We can't use a variable size since its a stack allocated array and it needs to be
+        // known at compile-time
+        // int m_Array[size];
+        // int m_Array[10]; // This won't be dynamic
+        int m_Array[N]; // This works!
 
-public:
-	int GetSize() const { return N; }
+    public:
+        int GetSize() const { return N; }
 };
 
 int main ()
 {
-	// With this example, the template usage will essentially result in a version of class
-	Array being created where int m_Array[N] is int m_Array[5];
-	Array<5> array;
-	std::cin.get();
+    // With this example, the template usage will essentially result in a version of class
+    Array being created where int m_Array[N] is int m_Array[5];
+    Array<5> array;
+    std::cin.get();
 }
 
 You can also specify what type the array should be with this:
 typename<typename T, int N>
 class Array
 {
-private:
-	T m_Array[N]; // This works with any types!
-public:
-	int GetSize() const { return N; }
+    private:
+        T m_Array[N]; // This works with any types!
+    public:
+        int GetSize() const { return N; }
 };
 
 // Usage:
@@ -1199,13 +1216,13 @@ Cherno strategy:
 Use struct when using plain variables. Like a mathematical vector class:
 struct Vec2
 {
-	float x, y; // Only two variables 
-	// You can also have a few methods changing the variables:
-	void Add(const Vec2& other)
-	{
-		x+= other.x;
-		y+= other.y;
-	}
+    float x, y; // Only two variables 
+                // You can also have a few methods changing the variables:
+    void Add(const Vec2& other)
+    {
+        x+= other.x;
+        y+= other.y;
+    }
 }
 
 A class "should" contain more functionality. Inheritance is possible with structs but they
@@ -1223,7 +1240,7 @@ Program using template and decltype and auto:
 // C++ program to demonstrate use of decltype in functions
 #include <bits/stdc++.h>
 using namespace std;
- 
+
 // A generic function which finds minimum of two values
 // return type is type of variable which is minimum
 template <class A, class B>
@@ -1231,16 +1248,16 @@ auto findMin(A a, B b) -> decltype(a < b ? a : b)
 {
     return (a < b) ? a : b;
 }
- 
+
 // driver function to test various inference
 int main()
 {
     // This call returns 3.44 of double type
     cout << findMin(4, 3.44) << endl;
- 
+
     // This call returns 3 of double type
     cout << findMin(5.4, 3) << endl;
- 
+
     return 0;
 }
 
@@ -1298,48 +1315,48 @@ whereas type conversion can only be applied to compatible datatypes.
 
 int main()
 {
-	// Creating array on the stack
-	int size = 5;
-	int array[5]; // int array[size] doesn't work unless size is const since compiler needs to know size at compile time if allocated on the stack
+    // Creating array on the stack
+    int size = 5;
+    int array[5]; // int array[size] doesn't work unless size is const since compiler needs to know size at compile time if allocated on the stack
 
-	// Creating array on the heap
-	int* heapArray = new int[size];
-	delete[] heapArray; // Needs to be deleted
+    // Creating array on the heap
+    int* heapArray = new int[size];
+    delete[] heapArray; // Needs to be deleted
 
-	// Using standard array (std)
+    // Using standard array (std)
 
-	std::array<int, 10> collection;
-	collection.size(); // Get size of array
-	// for(int i = 0; i < collection.size(); i++) // Looping the array
-	// for (int i : collection) // Looping with iterator
+    std::array<int, 10> collection;
+    collection.size(); // Get size of array
+    // for(int i = 0; i < collection.size(); i++) // Looping the array
+    // for (int i : collection) // Looping with iterator
 }
 
 // Creating a custom array class:
 
-class Array { 
-public:
-	Array(int size){
-		// Alloca takes size in bytes and allocates memory on stack
-		// A few caveats for alloca: compiler won't know how much memory space is
-		// needed at compile time, so a few optimizations are skipped...
+class Array {
+    public:
+        Array(int size){
+            // Alloca takes size in bytes and allocates memory on stack
+            // A few caveats for alloca: compiler won't know how much memory space is
+            // needed at compile time, so a few optimizations are skipped...
 
-		// m_data = (int*)alloca(size * sizeof(int));
+            // m_data = (int*)alloca(size * sizeof(int));
 
-		// We can still use int_mdata[10] and not use alloca, if we use template!
-		// See code below!
-	}
-private:
-	// How can we dynamically allocate memory on the stack?
-	// Use pointer and alloca
-	//int m_data[10];
-	int* m_data;
+            // We can still use int_mdata[10] and not use alloca, if we use template!
+            // See code below!
+        }
+    private:
+        // How can we dynamically allocate memory on the stack?
+        // Use pointer and alloca
+        //int m_data[10];
+        int* m_data;
 };
 
 int main()
 {
-	// Now we can do this:
-	int size = 5;
-	Array data(size); // Or: data(5);
+    // Now we can do this:
+    int size = 5;
+    Array data(size); // Or: data(5);
 }
 
 
