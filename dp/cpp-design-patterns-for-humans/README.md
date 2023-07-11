@@ -2037,7 +2037,140 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+/**
+ * C++ has its own implementation of iterator that works with a different
+ * generics containers defined by the standard library.
+ */
+
+template <typename T, typename U>
+class Iterator {
+	public:
+		typedef typename std::vector<T>::iterator iter_type;
+		Iterator(U *p_data, bool reverse = false) : m_p_data_(p_data) {
+			m_it_ = m_p_data_->m_data_.begin();
+		}
+
+		void First() {
+			m_it_ = m_p_data_->m_data_.begin();
+		}
+
+		void Next() {
+			m_it_++;
+		}
+
+		bool IsDone() {
+			return (m_it_ == m_p_data_->m_data_.end());
+		}
+
+		iter_type Current() {
+			return m_it_;
+		}
+
+	private:
+		U *m_p_data_;
+		iter_type m_it_;
+};
+
+/**
+ * Generic Collections/Containers provides one or several methods for retrieving
+ * fresh iterator instances, compatible with the collection class.
+ */
+
+template <class T>
+class Container {
+	friend class Iterator<T, Container>;
+
+	public:
+	void Add(T a) {
+		m_data_.push_back(a);
+	}
+
+	Iterator<T, Container> *CreateIterator() {
+		return new Iterator<T, Container>(this);
+	}
+
+	private:
+	std::vector<T> m_data_;
+};
+
+class Data {
+	public:
+		Data(int a = 0) : m_data_(a) {}
+
+		void set_data(int a) {
+			m_data_ = a;
+		}
+
+		int data() {
+			return m_data_;
+		}
+
+	private:
+		int m_data_;
+};
+
+/**
+ * The client code may or may not know about the Concrete Iterator or Collection
+ * classes, for this implementation the container is generic so you can used
+ * with an int or with a custom class.
+ */
+void ClientCode() {
+	std::cout << "________________Iterator with int______________________________________" << std::endl;
+	Container<int> cont;
+
+	for (int i = 0; i < 10; i++) {
+		cont.Add(i);
+	}
+
+	Iterator<int, Container<int>> *it = cont.CreateIterator();
+	for (it->First(); !it->IsDone(); it->Next()) {
+		std::cout << *it->Current() << std::endl;
+	}
+
+	Container<Data> cont2;
+	Data a(100), b(1000), c(10000);
+	cont2.Add(a);
+	cont2.Add(b);
+	cont2.Add(c);
+
+	std::cout << "________________Iterator with custom Class______________________________" << std::endl;
+	Iterator<Data, Container<Data>> *it2 = cont2.CreateIterator();
+	for (it2->First(); !it2->IsDone(); it2->Next()) {
+		std::cout << it2->Current()->data() << std::endl;
+	}
+	delete it;
+	delete it2;
+}
+
+int main() {
+	ClientCode();
+	return 0;
+}
+
+// Output:
+/**
+________________Iterator with int______________________________________
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+________________Iterator with custom Class______________________________
+100
+1000
+10000
+*/
+```
 
 #### When To Use
 
@@ -2069,7 +2202,266 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <string>
+#include <list>
+#include <initializer_list>
+
+/**
+ * The Mediator interface declares a method used by components to notify the
+ * chatroom about various events. The Mediator may react to these events and
+ * pass the execution to other components.
+
+ initializer_list ref: https://en.cppreference.com/w/cpp/utility/initializer_list
+ */
+class Participant;
+class Mediator {
+	public:
+		virtual ~Mediator(){};
+		virtual void Register(Participant *participant) = 0;
+		virtual void UnRegister(Participant *participant) = 0;
+		virtual void Notify(Participant *sender, std::string event) const = 0;
+		virtual void Send(std::string from, std::string to, std::string message) = 0;
+};
+
+/**
+ * The Base Component provides the basic functionality of storing a chatroom's
+ * instance inside component objects. AKA AbstractColleague / AbstractParticipant.
+ */
+class Participant {
+	protected:
+		Mediator *mediator_;
+		std::string name_;
+
+	public:
+		Participant(const std::string name, Mediator *chatroom = nullptr) : name_(name), mediator_(chatroom) {
+		}
+
+		virtual ~Participant(){};
+
+		void set_mediator(Mediator *chatroom) {
+			this->mediator_ = chatroom;
+		}
+
+		void Send(std::string to, std::string message) {
+			std::cout << "Participant: Sending message!" << std::endl;
+			mediator_->Send(name_, to, message);
+		}
+
+		virtual void Receive(std::string from, std::string message) const {
+			std::cout << from << " to " << name_ << ": " << message << std::endl;
+		}
+
+		std::string getName() {
+			return name_;
+		}
+};
+
+/**
+ * Concrete Components implement various functionality. They don't depend on
+ * other components. They also don't depend on any concrete chatroom classes.
+ * AKA ConcreteColleague, ConcreteParticipant.
+ */
+class Beatle : public Participant {
+	public:
+		Beatle(const std::string name) : Participant(name) { 
+		}
+		void DoA() {
+			std::cout << "Component 1 does A.\n";
+			this->mediator_->Notify(this, "A");
+		}
+		void DoB() {
+			std::cout << "Component 1 does B.\n";
+			this->mediator_->Notify(this, "B");
+		}
+
+		void Receive(std::string from, std::string message) const override {
+			std::cout << "To a Beatle: ";
+			Participant::Receive(from, message);
+		}
+};
+
+class NonBeatle : public Participant {
+	public:
+		NonBeatle(const std::string name) : Participant(name) { 
+		}
+		void DoC() {
+			std::cout << "Component 2 does C.\n";
+			this->mediator_->Notify(this, "C");
+		}
+		void DoD() {
+			std::cout << "Component 2 does D.\n";
+			this->mediator_->Notify(this, "D");
+		}
+
+		void Receive(std::string from, std::string message) const override {
+			std::cout << "To a non-Beatle: ";
+			Participant::Receive(from, message);
+		}
+};
+
+/**
+ * Concrete Mediators implement cooperative behavior by coordinating several
+ * components.
+ */
+template<typename T>
+class ChatRoom : public Mediator {
+	private:
+		std::list<T> participants;
+
+	public:
+		ChatRoom(std::initializer_list<T> participants_init_list) : participants(participants_init_list) {
+
+			std::cout << "init list size: " << participants.size() << std::endl;
+			std::list<Participant *>::iterator participant_it = participants.begin();
+			while (participant_it != participants.end()) {
+				std::cout << "Initializing participant: " << (*participant_it)->getName() << std::endl;
+				(*participant_it)->set_mediator(this);
+				++participant_it;
+			}
+		}
+
+		void Register(Participant *participant) override {
+			participants.push_back(participant);
+		}
+
+		void UnRegister(Participant *participant) override {
+			participants.remove(participant);
+		}
+
+		void Notify(Participant *sender, std::string event) const override {
+			if (event == "A") {
+				std::cout << "Mediator reacts on A and triggers following operations:\n";
+				//this->component2_->DoC();
+			}
+			if (event == "D") {
+				std::cout << "Mediator reacts on D and triggers following operations:\n";
+				//this->component1_->DoB();
+				//this->component2_->DoC();
+			}
+		}
+
+		void Send(std::string from, std::string to, std::string message) override {
+			std::list<Participant *>::iterator participant_it = participants.begin();
+			bool message_sent = false;
+
+			while (participant_it != participants.end()) {
+				if ((*participant_it)->getName() == to) {
+					std::cout << "ChatRooom: Forwarding message to " << (*participant_it)->getName() << "..." << std::endl;
+					(*participant_it)->Receive(from, message);
+					message_sent = true;
+				}
+				++participant_it;
+			}
+
+			if (!message_sent)
+				std::cout << "Invalid recipient: " << to << std::endl;
+		}
+};
+
+/**
+ * The client code.
+ */
+void ClientCode() {
+	Participant *george = new Beatle("George"); // Harrison
+	Participant *paul = new Beatle("Paul"); // McCartney
+	Participant *ringo = new Beatle("Ringo"); // Starr
+	Participant *john = new Beatle("John"); // Lennon
+	Participant *yoko = new NonBeatle("Yoko");
+
+	// Registration occurs in constructor
+	ChatRoom<Participant*> *chatroom = new ChatRoom<Participant*>({george, paul, ringo, john, yoko});
+
+	// New participants can be added later as well...
+	Participant *jonas = new NonBeatle("Jonas");
+	jonas->set_mediator(chatroom);
+	chatroom->Register(jonas);
+
+	// Testing
+	std::cout << "\n";
+	yoko->Send("John", "Hi John!");
+	std::cout << "\n";
+	paul->Send("Ringo", "All you need is love");
+	std::cout << "\n";
+	ringo->Send("George", "My sweet Lord");
+	std::cout << "\n";
+	paul->Send("John", "Can't buy me love");
+	std::cout << "\n";
+	john->Send("Yoko", "My sweet love");
+
+	std::cout << "\n";
+	paul->Send("Jonas", "Hi jonas!");
+	std::cout << "\n";
+	john->Send("Test", "invalid test message");
+	std::cout << "\n";
+	john->Send("Paul", "valid test message");
+
+	std::cout << "\n";
+	jonas->Send("Ringo", "valid test message2");
+
+	delete george;
+	delete paul;
+	delete ringo;
+	delete yoko;
+	delete john;
+	delete jonas;
+	delete chatroom;
+}
+
+int main() {
+	ClientCode();
+	std::cout << "\nEnd of program!" << std::endl;
+	return 0;
+}
+
+// Output:
+/**
+init list size: 5
+Initializing participant: George
+Initializing participant: Paul
+Initializing participant: Ringo
+Initializing participant: John
+Initializing participant: Yoko
+
+Participant: Sending message!
+ChatRooom: Forwarding message to John...
+To a Beatle: Yoko to John: Hi John!
+
+Participant: Sending message!
+ChatRooom: Forwarding message to Ringo...
+To a Beatle: Paul to Ringo: All you need is love
+
+Participant: Sending message!
+ChatRooom: Forwarding message to George...
+To a Beatle: Ringo to George: My sweet Lord
+
+Participant: Sending message!
+ChatRooom: Forwarding message to John...
+To a Beatle: Paul to John: Can't buy me love
+
+Participant: Sending message!
+ChatRooom: Forwarding message to Yoko...
+To a non-Beatle: John to Yoko: My sweet love
+
+Participant: Sending message!
+ChatRooom: Forwarding message to Jonas...
+To a non-Beatle: Paul to Jonas: Hi jonas!
+
+Participant: Sending message!
+Invalid recipient: Test
+
+Participant: Sending message!
+ChatRooom: Forwarding message to Paul...
+To a Beatle: John to Paul: valid test message
+
+Participant: Sending message!
+ChatRooom: Forwarding message to Ringo...
+To a Beatle: Jonas to Ringo: valid test message2
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2100,7 +2492,313 @@ Usually useful when you need to provide some sort of undo functionality.
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <string>
+#include <ctime>
+#include <vector>
+
+/**
+ * The Memento interface provides a way to retrieve the memento's metadata, such
+ * as creation date or name. However, it doesn't expose the SalesProspect's state.
+ */
+class Memento {
+	public:
+		virtual ~Memento() {}
+		virtual std::string GetName() const = 0;
+		virtual std::string date() const = 0;
+		virtual std::string state() const = 0;
+		const virtual std::string name() const = 0;
+		const virtual std::string phone() const = 0;
+		const virtual double budget() const = 0;
+};
+
+/**
+ * The Concrete Memento contains the infrastructure for storing the SalesProspect's
+ * state.
+ */
+class ConcreteMemento : public Memento {
+	private:
+		std::string date_;
+		std::string state_;
+
+		std::string name_;
+		std::string phone_;
+		double budget_;
+
+	public:
+		ConcreteMemento(std::string state, std::string name, std::string phone, double budget) : state_(state), name_(name), phone_(phone), budget_(budget) {
+			this->state_ = state;
+			std::time_t now = std::time(0);
+			this->date_ = std::ctime(&now);
+		}
+
+		// Getters and setters
+		const std::string name() const override { return name_; } 
+		void name(const std::string& name) { name_ = name; }
+
+		const std::string phone() const override { return phone_; } 
+		void phone(const std::string& phone) { phone_ = phone; }
+
+		const double budget() const override { return budget_; } 
+		void budget(const double& budget) { budget_ = budget; }
+
+		/**
+		 * The SalesProspect uses this method when restoring its state.
+		 */
+		std::string state() const override {
+			return this->state_;
+		}
+		/**
+		 * The rest of the methods are used by the ProspectMemory to display metadata.
+		 */
+		std::string GetName() const override {
+			return this->date_ + " / (" + this->state_.substr(0, 9) + "...)";
+		}
+		std::string date() const override {
+			return this->date_;
+		}
+};
+
+/**
+ * The SalesProspect holds some important state that may change over time. It also
+ * defines a method for saving the state inside a memento and another method for
+ * restoring the state from it.
+ */
+class SalesProspect {
+	/**
+	 * @var string For the sake of simplicity, the originator's state is stored
+	 * inside a single variable.
+	 */
+	private:
+		std::string state_;
+		std::string name_;
+		std::string phone_;
+		double budget_;
+
+		std::string GenerateRandomString(int length = 10) {
+			const char alphanum[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+			int stringLength = sizeof(alphanum) - 1;
+
+			std::string random_string;
+			for (int i = 0; i < length; i++) {
+				random_string += alphanum[std::rand() % stringLength];
+			}
+			return random_string;
+		}
+
+	public:
+		SalesProspect(std::string state) : state_(state) {
+			std::cout << "SalesProspect: My initial state is: " << this->state_ << "\n";
+		}
+		/**
+		 * The SalesProspect's business logic may affect its internal state. Therefore,
+		 * the client should backup the state before launching methods of the business
+		 * logic via the save() method.
+		 */
+		void DoSomething() {
+			std::cout << "SalesProspect: I'm doing something important.\n";
+			this->state_ = this->GenerateRandomString(30);
+			std::cout << "SalesProspect: and my state has changed to: " << this->state_ << "\n";
+
+			// Change name, phone and budget...
+		}
+
+		// Getters and setters
+		//const std::string& name() const { return name_; } 
+		const std::string name() const { return name_; } 
+		void name(const std::string& name) { name_ = name; }
+
+		//const std::string& phone() const { return phone_; } 
+		const std::string phone() const { return phone_; } 
+		void phone(const std::string& phone) { phone_ = phone; }
+
+		//const double& budget() const { return budget_; } 
+		const double budget() const { return budget_; } 
+		void budget(const double& budget) { budget_ = budget; }
+
+		std::string state() const {
+			return this->state_;
+		}
+
+		/**
+		 * Saves the current state inside a memento.
+		 */
+		Memento *Save() {
+			std::cout << "Saving state..." << std::endl;
+			return new ConcreteMemento(this->state_, this->name_, this->phone_, this->budget_);
+		}
+		/**
+		 * Restores the SalesProspect's state from a memento object.
+		 */
+		void Restore(Memento *memento) {
+			this->state_ = memento->state();
+			std::cout << "SalesProspect: My state has been restored to: " << this->state_ << "\n";
+
+			this->name_ = memento->name();
+			this->phone_ = memento->phone();
+			this->budget_ = memento->budget();
+			//this->name(memento->name());
+			//this->phone(memento->phone());
+			//this->budget(memento->budget());
+			std::cout << "New name, phone and budget: " << name_ << ", " << phone_ << ", " << budget_ << std::endl;
+		}
+};
+
+/**
+ * The ProspectMemory doesn't depend on the Concrete Memento class. Therefore, it
+ * doesn't have access to the originator's state, stored inside the memento. It
+ * works with all mementos via the base Memento interface.
+ */
+class ProspectMemory {
+	/**
+	 * @var Memento[]
+	 */
+	private:
+		std::vector<Memento *> mementos_;
+
+		/**
+		 * @var SalesProspect
+		 */
+		SalesProspect *originator_;
+
+	public:
+		ProspectMemory(SalesProspect* originator) : originator_(originator) {
+		}
+
+		~ProspectMemory() {
+			for (auto m : mementos_) delete m;
+		}
+
+		void Backup() {
+			std::cout << "\nCaretaker: Saving SalesProspect's state...\n";
+			std::cout << "state, name, phone and budget: " << this->originator_->state() << "," << this->originator_->name() << ", " << this->originator_->phone() << ", " << this->originator_->budget() << std::endl;
+			this->mementos_.push_back(this->originator_->Save());
+		}
+		void Undo() {
+			if (!this->mementos_.size()) {
+				return;
+			}
+			Memento *memento = this->mementos_.back();
+			this->mementos_.pop_back();
+			std::cout << "ProspectMemory: Restoring state to: " << memento->GetName() << "\n";
+			try {
+				this->originator_->Restore(memento);
+			} catch (...) {
+				this->Undo();
+			}
+		}
+		void ShowHistory() const {
+			std::cout << "ProspectMemory: Here's the list of mementos:\n";
+			for (Memento *memento : this->mementos_) {
+				std::cout << memento->GetName() << "\n";
+				std::cout << "name, phone and budget: " << memento->name() << ", " << memento->phone() << ", " << memento->budget() << std::endl;
+			}
+		}
+};
+
+/**
+ * Client code.
+ */
+void ClientCode() {
+	SalesProspect *originator = new SalesProspect("Super-duper-super-puper-super.");
+	ProspectMemory *caretaker = new ProspectMemory(originator);
+	originator->name("Noel van Halen"); // setName
+	originator->phone("(412) 256-0990"); // setPhone
+	originator->budget(2500); // setBudget
+
+	caretaker->Backup();
+	originator->DoSomething();
+	originator->name("Testing person"); // setName
+	originator->phone("081111"); // setPhone
+	originator->budget(25.9522); // setBudget
+
+	caretaker->Backup();
+	originator->DoSomething();
+	originator->name("Leo Welch"); // setName
+	originator->phone("(310) 209-7111"); // setPhone
+	originator->budget(100000.25); // setBudget
+
+	caretaker->Backup();
+	originator->DoSomething();
+	originator->name("Jonas test"); // setName
+	originator->phone("123"); // setPhone
+	originator->budget(1500); // setBudget
+	std::cout << "\nstate, name, phone and budget (before rollback): " << originator->state() << originator->name() << ", " << originator->phone() << ", " << originator->budget() << std::endl;
+
+	std::cout << "\n";
+	caretaker->ShowHistory();
+	std::cout << "\nClient: Now, let's rollback!\n\n";
+	caretaker->Undo();
+	std::cout << "\nClient: Once more!\n\n";
+	caretaker->Undo();
+
+	delete originator;
+	delete caretaker;
+}
+
+int main() {
+	std::srand(static_cast<unsigned int>(std::time(NULL)));
+	ClientCode();
+	std::cout << "\nEnd of program!" << std::endl;
+	return 0;
+}
+
+// Output:
+/**
+SalesProspect: My initial state is: Super-duper-super-puper-super.
+
+Caretaker: Saving SalesProspect's state...
+state, name, phone and budget: Super-duper-super-puper-super.,Noel van Halen, (412) 256-0990, 2500
+Saving state...
+SalesProspect: I'm doing something important.
+SalesProspect: and my state has changed to: Ud5dfGgugCCVZ8GedRiEHQVQ58ocEq
+
+Caretaker: Saving SalesProspect's state...
+state, name, phone and budget: Ud5dfGgugCCVZ8GedRiEHQVQ58ocEq,Testing person, 081111, 25.9522
+Saving state...
+SalesProspect: I'm doing something important.
+SalesProspect: and my state has changed to: zbW9lLGF1tAYaDwiw9HwvwZgLNKkIX
+
+Caretaker: Saving SalesProspect's state...
+state, name, phone and budget: zbW9lLGF1tAYaDwiw9HwvwZgLNKkIX,Leo Welch, (310) 209-7111, 100000
+Saving state...
+SalesProspect: I'm doing something important.
+SalesProspect: and my state has changed to: FoU9OjVBS7jM0KhmjaWC6KETsPQSWo
+
+state, name, phone and budget (before rollback): FoU9OjVBS7jM0KhmjaWC6KETsPQSWoJonas test, 123, 1500
+
+ProspectMemory: Here's the list of mementos:
+Tue Jul 11 15:48:08 2023
+ / (Super-dup...)
+name, phone and budget: Noel van Halen, (412) 256-0990, 2500
+Tue Jul 11 15:48:08 2023
+ / (Ud5dfGgug...)
+name, phone and budget: Testing person, 081111, 25.9522
+Tue Jul 11 15:48:08 2023
+ / (zbW9lLGF1...)
+name, phone and budget: Leo Welch, (310) 209-7111, 100000
+
+Client: Now, let's rollback!
+
+ProspectMemory: Restoring state to: Tue Jul 11 15:48:08 2023
+ / (zbW9lLGF1...)
+SalesProspect: My state has been restored to: zbW9lLGF1tAYaDwiw9HwvwZgLNKkIX
+New name, phone and budget: Leo Welch, (310) 209-7111, 100000
+
+Client: Once more!
+
+ProspectMemory: Restoring state to: Tue Jul 11 15:48:08 2023
+ / (Ud5dfGgug...)
+SalesProspect: My state has been restored to: Ud5dfGgugCCVZ8GedRiEHQVQ58ocEq
+New name, phone and budget: Testing person, 081111, 25.9522
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2129,7 +2827,221 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+/**
+ * Investor Design Pattern
+ *
+ * Intent: Lets you define a subscription mechanism to notify multiple objects
+ * about any events that happen to the object they're observing.
+ *
+ * Note that there's a lot of different terms with similar meaning associated
+ * with this pattern. Just remember that the IBM is also called the
+ * Publisher and the Investor is often called the Subscriber and vice versa.
+ * Also the verbs "observe", "listen" or "track" usually mean the same thing.
+ */
+
+#include <iostream>
+#include <list>
+#include <string>
+
+class Stock;
+
+// Observer interface
+class IInvestor {
+	public:
+		virtual ~IInvestor(){};
+		//virtual void Update(const std::string &message_from_subject) = 0;
+		virtual void Update(Stock* stock) = 0;
+};
+
+// Subject interface
+class Stock {
+	public:
+		virtual ~Stock(){};
+		virtual void Attach(IInvestor *observer) = 0;
+		virtual void Detach(IInvestor *observer) = 0;
+		virtual void Notify() = 0;
+		virtual void CreateMessage(std::string msg) = 0;
+		virtual double getPrice() const = 0;
+		virtual void setPrice(double newPrice) = 0;
+};
+
+/**
+ * The IBM owns some important state and notifies observers when the state
+ * changes.
+ */
+
+class IBM : public Stock {
+	public:
+		virtual ~IBM() {
+			std::cout << "Goodbye, I was IBM (Subject / Stock).\n";
+		}
+
+		/**
+		 * The subscription management methods.
+		 */
+		void Attach(IInvestor *observer) override {
+			list_observer_.push_back(observer);
+		}
+		void Detach(IInvestor *observer) override {
+			list_observer_.remove(observer);
+		}
+		void Notify() override {
+			std::list<IInvestor *>::iterator iterator = list_observer_.begin();
+			HowManyObserver();
+			while (iterator != list_observer_.end()) {
+				//(*iterator)->Update(message_);
+				(*iterator)->Update(this);
+				++iterator;
+			}
+		}
+
+		void CreateMessage (std::string message = "Empty") override {
+			// Change price
+			price += 20;
+			this->message_ = message;
+			Notify();
+		}
+		void HowManyObserver() {
+			std::cout << "There are " << list_observer_.size() << " observers in the list.\n";
+		}
+
+		/**
+		 * Usually, the subscription logic is only a fraction of what a Subject can
+		 * really do. Subjects commonly hold some important business logic, that
+		 * triggers a notification method whenever something important is about to
+		 * happen (or after it).
+		 */
+		void SomeBusinessLogic() {
+			this->message_ = "change message message";
+			Notify();
+			std::cout << "I'm about to do some thing important\n";
+		}
+
+		double getPrice() const override {
+			return price;
+		}
+
+		void setPrice(double newPrice) override {
+			this->price = newPrice;
+		}
+
+
+	private:
+		std::list<IInvestor *> list_observer_;
+		std::string message_;
+		double price;
+};
+
+class Investor : public IInvestor {
+	public:
+		Investor(Stock &subject) : subject_(subject) {
+			this->subject_.Attach(this);
+			std::cout << "Hi, I'm the Investor \"" << ++Investor::static_number_ << "\".\n";
+			this->number_ = Investor::static_number_;
+		}
+		virtual ~Investor() {
+			std::cout << "Goodbye, I was the Investor \"" << this->number_ << "\".\n";
+		}
+
+		//void Update(const std::string &message_from_subject) override {
+		void Update(Stock* stock) override {
+			std::cout << "Notified Investor " << this->number_ << " of stock price change to " << stock->getPrice() << std::endl;
+			//PrintInfo();
+		}
+		void RemoveMeFromTheList() {
+			subject_.Detach(this);
+			std::cout << "Investor \"" << number_ << "\" removed from the list.\n";
+		}
+		void PrintInfo() {
+			std::cout << "Investor \"" << this->number_ << "\": a new message is available --> " << this->message_from_subject_ << "\n";
+		}
+
+	private:
+		std::string message_from_subject_;
+		Stock &subject_;
+		static int static_number_;
+		int number_;
+};
+
+int Investor::static_number_ = 0;
+
+void ClientCode() {
+	Stock *ibm = new IBM;
+	ibm->setPrice(50.35);
+	Investor *observer1 = new Investor(*ibm);
+	Investor *observer2 = new Investor(*ibm);
+	Investor *observer3 = new Investor(*ibm);
+	Investor *observer4;
+	Investor *observer5;
+
+	ibm->CreateMessage("Hello World! :D");
+	observer3->RemoveMeFromTheList();
+
+	ibm->CreateMessage("New computer released!");
+	observer4 = new Investor(*ibm);
+
+	observer2->RemoveMeFromTheList();
+	observer5 = new Investor(*ibm);
+
+	ibm->CreateMessage("My new computer is great! ;)");
+	observer5->RemoveMeFromTheList();
+
+	observer4->RemoveMeFromTheList();
+	observer1->RemoveMeFromTheList();
+
+	delete observer5;
+	delete observer4;
+	delete observer3;
+	delete observer2;
+	delete observer1;
+	delete ibm;
+}
+
+int main() {
+	ClientCode();
+	std::cout << "\nEnd of program!" << std::endl;
+	return 0;
+}
+
+
+// Output:
+/**
+Hi, I'm the Investor "1".
+Hi, I'm the Investor "2".
+Hi, I'm the Investor "3".
+There are 3 observers in the list.
+Notified Investor 1 of stock price change to 70.35
+Notified Investor 2 of stock price change to 70.35
+Notified Investor 3 of stock price change to 70.35
+
+Investor "3" removed from the list.
+There are 2 observers in the list.
+Notified Investor 1 of stock price change to 90.35
+Notified Investor 2 of stock price change to 90.35
+
+Hi, I'm the Investor "4".
+Investor "2" removed from the list.
+Hi, I'm the Investor "5".
+There are 3 observers in the list.
+Notified Investor 1 of stock price change to 110.35
+Notified Investor 4 of stock price change to 110.35
+Notified Investor 5 of stock price change to 110.35
+
+Investor "5" removed from the list.
+Investor "4" removed from the list.
+Investor "1" removed from the list.
+
+Goodbye, I was the Investor "5".
+Goodbye, I was the Investor "4".
+Goodbye, I was the Investor "3".
+Goodbye, I was the Investor "2".
+Goodbye, I was the Investor "1".
+Goodbye, I was IBM (Subject / Stock).
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2163,7 +3075,204 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <array>
+
+/**
+ * The IVisitor Interface declares a set of visiting methods that correspond to
+ * component classes. The signature of a visiting method allows the visitor to
+ * identify the exact class of the component that it's dealing with.
+ */
+class Employee;
+
+class IVisitor {
+	public:
+		virtual void Visit(Employee* const element) = 0;
+};
+
+/**
+ * The Element interface declares an `accept` method that should take the base
+ * visitor interface as an argument.
+ */
+class Element {
+	public:
+		virtual ~Element() {}
+		virtual void Accept(IVisitor* const visitor) = 0;
+};
+
+/**
+ * Each Concrete Element must implement the `Accept` method in such a way that
+ * it calls the visitor's method corresponding to the component's class.
+ */
+class Employee : public Element {
+	protected:
+		std::string name_;
+		double income_;
+		unsigned int vacationDays_;
+
+	public:
+		Employee(std::string name, double income, unsigned int vacationDays) : name_(name), income_(income), vacationDays_(vacationDays) {
+		}
+
+		void Accept(IVisitor* const visitor) override {
+			visitor->Visit(this);
+		}
+		/**
+		 * Concrete Components may have special methods that don't exist in their base
+		 * class or interface. The IVisitor is still able to use these methods since
+		 * it's aware of the component's concrete class.
+		 */
+		std::string GetInfo() const {
+			return "Employee info: " + name_ + ", " + std::to_string(income_) + ", " + std::to_string(vacationDays_);
+		}
+
+		// Getters and setters
+		const std::string name() const { return name_; } 
+		void name(const std::string& name) { name_ = name; }
+
+		const double income() const { return income_; } 
+		void income(double income) { income_ = income; }
+
+		const unsigned int vacationDays() const { return vacationDays_; } 
+		void vacationDays(unsigned int vacationDays) { vacationDays_ = vacationDays; }
+		
+};
+
+// Three employee types
+class Clerk : public Employee {
+	public:
+		Clerk(std::string name, double income, unsigned int vacationDays) : Employee(name, income, vacationDays) {
+		}
+
+		void Accept(IVisitor* const visitor) override {
+			visitor->Visit(this);
+		}
+		std::string SpecialMethodOfClerk() const {
+			return "Clerk";
+		}
+};
+
+class Director : public Employee {
+	public:
+		Director(std::string name, double income, unsigned int vacationDays) : Employee(name, income, vacationDays) {
+		}
+
+		void Accept(IVisitor* const visitor) override {
+			visitor->Visit(this);
+		}
+		std::string SpecialMethodOfDirector() const {
+			return "Director";
+		}
+};
+
+class President : public Employee {
+	public:
+		President(std::string name, double income, unsigned int vacationDays) : Employee(name, income, vacationDays) {
+		}
+
+		void Accept(IVisitor* const visitor) override {
+			visitor->Visit(this);
+		}
+		std::string SpecialMethodOfPresident() const {
+			return "President";
+		}
+};
+
+/**
+ * Concrete Visitors implement several versions of the same algorithm, which can
+ * work with all concrete component classes.
+ *
+ * You can experience the biggest benefit of the IVisitor pattern when using it
+ * with a complex object structure, such as a Composite tree. In this case, it
+ * might be helpful to store some intermediate state of the algorithm while
+ * executing visitor's methods over various objects of the structure.
+ */
+class IncomeVisitor : public IVisitor {
+	public:
+		void Visit(Employee* const element) override {
+			std::cout << "IncomeVisitor providing income increase for " << element->name() << std::endl;
+			std::cout << "Prev income: " << element->income() << std::endl;
+			// Provide 10 % pay raise
+			element->income(element->income() * 1.10);
+			std::cout << "New income: " << element->income() << std::endl;
+		}
+};
+
+class VacationVisitor : public IVisitor {
+	public:
+		void Visit(Employee* const element) override {
+			std::cout << "VacationVisitor providing income increase for " << element->name() << std::endl;
+			std::cout << "Prev vacationDays: " << element->vacationDays() << std::endl;
+			// Provide 10 % pay raise
+			element->vacationDays(element->vacationDays() + 3);
+			std::cout << "New vacationDays: " << element->vacationDays() << std::endl;
+		}
+};
+
+/**
+ * The client code can run visitor operations over any set of elements without
+ * figuring out their concrete classes. The accept operation directs a call to
+ * the appropriate operation in the visitor object.
+ */
+void ClientCode(std::array<Element* const, 3> components, IVisitor *visitor) {
+	// ...
+	for (Element* const comp : components) {
+		comp->Accept(visitor);
+	}
+	// ...
+}
+
+int main() {
+	std::array<Element* const, 3> components = {new Clerk("Jonas", 2000.5, 5), new Director("John", 3000.99, 6), new President("Buster", 4000.0, 8)};
+
+	std::cout << "The client code works with all visitors via the base IVisitor interface:\n";
+
+	IncomeVisitor *visitor1 = new IncomeVisitor;
+	ClientCode(components, visitor1);
+	std::cout << "\n";
+
+	std::cout << "It allows the same client code to work with different types of visitors:\n";
+	VacationVisitor *visitor2 = new VacationVisitor;
+	ClientCode(components, visitor2);
+
+	for (Element *comp : components) {
+		delete comp;
+	}
+	delete visitor1;
+	delete visitor2;
+	std::cout << "\nEnd of program!" << std::endl;
+
+	return 0;
+}
+
+// Output:
+/**
+The client code works with all visitors via the base IVisitor interface:
+IncomeVisitor providing income increase for Jonas
+Prev income: 2000.5
+New income: 2200.55
+IncomeVisitor providing income increase for John
+Prev income: 3000.99
+New income: 3301.09
+IncomeVisitor providing income increase for Buster
+Prev income: 4000
+New income: 4400
+
+It allows the same client code to work with different types of visitors:
+VacationVisitor providing income increase for Jonas
+Prev vacationDays: 5
+New vacationDays: 8
+VacationVisitor providing income increase for John
+Prev vacationDays: 6
+New vacationDays: 9
+VacationVisitor providing income increase for Buster
+Prev vacationDays: 8
+New vacationDays: 11
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2195,7 +3304,127 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <string_view> // Requires C++ 17
+
+/**
+ * The Strategy interface declares operations common to all supported versions
+ * of some algorithm.
+ *
+ * The Context uses this interface to call the algorithm defined by Concrete
+ * Strategies.
+ */
+class Strategy
+{
+	public:
+		virtual ~Strategy() = default;
+		virtual std::string doAlgorithm(std::string_view data) const = 0;
+};
+
+/**
+ * The Context defines the interface of interest to clients.
+ */
+
+class Context
+{
+	/**
+	 * @var Strategy The Context maintains a reference to one of the Strategy
+	 * objects. The Context does not know the concrete class of a strategy. It
+	 * should work with all strategies via the Strategy interface.
+	 */
+	private:
+		std::unique_ptr<Strategy> strategy_;
+		/**
+		 * Usually, the Context accepts a strategy through the constructor, but also
+		 * provides a setter to change it at runtime.
+		 */
+	public:
+		explicit Context(std::unique_ptr<Strategy> &&strategy = {}) : strategy_(std::move(strategy))
+	{
+	}
+		/**
+		 * Usually, the Context allows replacing a Strategy object at runtime.
+		 */
+		void set_strategy(std::unique_ptr<Strategy> &&strategy)
+		{
+			strategy_ = std::move(strategy);
+		}
+		/**
+		 * The Context delegates some work to the Strategy object instead of
+		 * implementing +multiple versions of the algorithm on its own.
+		 */
+		void doSomeBusinessLogic() const
+		{
+			if (strategy_) {
+				std::cout << "Context: Sorting data using the strategy (not sure how it'll do it)\n";
+				std::string result = strategy_->doAlgorithm("aecbd");
+				std::cout << result << "\n";
+			} else {
+				std::cout << "Context: Strategy isn't set\n";
+			}
+		}
+};
+
+/**
+ * Concrete Strategies implement the algorithm while following the base Strategy
+ * interface. The interface makes them interchangeable in the Context.
+ */
+class ConcreteStrategyA : public Strategy
+{
+	public:
+		std::string doAlgorithm(std::string_view data) const override
+		{
+			std::string result(data);
+			std::sort(std::begin(result), std::end(result));
+
+			return result;
+		}
+};
+class ConcreteStrategyB : public Strategy
+{
+	std::string doAlgorithm(std::string_view data) const override
+	{
+		std::string result(data);
+		std::sort(std::begin(result), std::end(result), std::greater<>());
+
+		return result;
+	}
+};
+/**
+ * The client code picks a concrete strategy and passes it to the context. The
+ * client should be aware of the differences between strategies in order to make
+ * the right choice.
+ */
+
+void clientCode()
+{
+	Context context(std::make_unique<ConcreteStrategyA>());
+	std::cout << "Client: Strategy is set to normal sorting.\n";
+	context.doSomeBusinessLogic();
+	std::cout << "\n";
+	std::cout << "Client: Strategy is set to reverse sorting.\n";
+	context.set_strategy(std::make_unique<ConcreteStrategyB>());
+	context.doSomeBusinessLogic();
+}
+
+int main()
+{
+	clientCode();
+	return 0;
+}
+
+// Output:
+/**
+Client: Strategy is set to normal sorting.
+Context: Sorting data using the strategy (not sure how it'll do it)
+abcde
+
+Client: Strategy is set to reverse sorting.
+Context: Sorting data using the strategy (not sure how it'll do it)
+edcba
+*/
+```
 
 #### When To Use
 
@@ -2227,7 +3456,290 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+/**
+ * The base State class declares methods that all Concrete State should
+ * implement and also provides a backreference to the Account object, associated
+ * with the State. This backreference can be used by States to transition the
+ * Account to another State.
+ */
+class Account;
+
+class State {
+	/**
+	 * @var Account
+	 */
+	protected:
+		Account *context_;
+		double balance_;
+		double interest;
+		double lowerLimit;
+		double upperLimit;
+
+	public:
+		virtual ~State() {
+		}
+
+		// Constructor
+		State(const double balance) {
+			this->balance_ = balance;
+		}
+
+		void set_context(Account *context) {
+			this->context_ = context;
+		}
+
+		const virtual double balance() const {
+			return balance_;
+		}
+
+		virtual void deposit(const double amount) = 0;
+		virtual void withdraw(const double amount) = 0;
+		virtual void payInterest() = 0;
+		virtual void stateChangeCheck() = 0;
+};
+
+/**
+ * The Account defines the interface of interest to clients. It also maintains a
+ * reference to an instance of a State subclass, which represents the current
+ * state of the Account.
+ */
+class Account {
+	/**
+	 * @var State A reference to the current state of the Account.
+	 */
+	private:
+		State *state_;
+		std::string owner_;
+
+	public:
+		Account(const std::string owner) : owner_(owner) {
+			this->state_ = nullptr;
+			std::cout << "New account created! Owner: " << owner_ << std::endl; 
+		}
+		~Account() {
+			delete state_;
+		}
+		/**
+		 * The Account allows changing the State object at runtime.
+		 */
+		void TransitionTo(State *state) {
+			std::cout << "Account: Transition to " << typeid(*state).name() << ".\n";
+			if (this->state_ != nullptr)
+				delete this->state_;
+			this->state_ = state;
+			this->state_->set_context(this);
+		}
+
+		double getBalance() {
+			return state_->balance();
+		}
+
+		void deposit(const double amount) {
+			this->state_->deposit(amount);
+
+			std::cout << "Deposited: " << amount << std::endl;
+			std::cout << "Balance: " << getBalance() << std::endl;
+			std::cout << "Status: " << typeid(*this->state_).name() << std::endl;
+		}
+
+		void withdraw(const double amount) {
+			this->state_->withdraw(amount);
+
+			std::cout << "Withdrew: " << amount << std::endl;
+			std::cout << "Balance: " << getBalance() << std::endl;
+			std::cout << "Status: " << typeid(*this->state_).name() << std::endl;
+		}
+
+		void payInterest() {
+			this->state_->payInterest();
+
+			std::cout << "Interest paid: " << std::endl;
+			std::cout << "Balance: " << getBalance() << std::endl;
+			std::cout << "Status: " << typeid(*this->state_).name() << std::endl;
+		}
+};
+
+/**
+ * Concrete States implement various behaviors, associated with a state of the
+ * Account.
+ */
+class RedState : public State {
+
+	private:
+		double serviceFee;
+
+	public:
+		RedState(const double balance) : State(balance) {
+			// Initiliaze
+			interest = 0.0;
+			lowerLimit = -100.0;
+			upperLimit = 0.0;
+			serviceFee = 15.00;
+		}
+
+		void deposit(double amount) override {
+			balance_ += amount;
+			stateChangeCheck();
+		}
+
+		void withdraw(const double amount) override {
+			//amount = amount - serviceFee;
+			std::cout << "No funds available for withdrawal!" << std::endl;
+			stateChangeCheck();
+		}
+
+		void payInterest() override {
+			std::cout << "payInterest()" << std::endl;
+			stateChangeCheck();
+		}
+
+		void stateChangeCheck() override;
+
+};
+
+class SilverState : public State {
+	public:
+		SilverState(const double balance) : State(balance) {
+			// Initiliaze
+			interest = 0.0;
+			lowerLimit = 0.0;
+			upperLimit = 1000.0;
+		}
+
+		void deposit(const double amount) override {
+			balance_ += amount;
+			stateChangeCheck();
+		}
+
+		void withdraw(const double amount) override {
+			balance_ -= amount;
+			stateChangeCheck();
+		}
+
+		void payInterest() override {
+			balance_ += interest * balance_;
+			stateChangeCheck();
+		}
+
+		void stateChangeCheck() override;
+};
+
+class GoldState : public State {
+	public:
+		GoldState(const double balance) : State(balance) {
+			// Initiliaze
+			interest = 0.05;
+			lowerLimit = 1000.0;
+			upperLimit = 10000000.0;
+		}
+
+		void deposit(const double amount) override {
+			balance_ += amount;
+			stateChangeCheck();
+		}
+
+		void withdraw(const double amount) override {
+			balance_ -= amount;
+			stateChangeCheck();
+		}
+
+		void payInterest() override {
+			balance_ += interest * balance_;
+			stateChangeCheck();
+		}
+
+		void stateChangeCheck() override;
+
+};
+
+void RedState::stateChangeCheck() {
+	if (balance_ > upperLimit)
+		this->context_->TransitionTo(new SilverState(this->balance_));
+}
+
+void SilverState::stateChangeCheck() {
+	if (balance_ < lowerLimit)
+		this->context_->TransitionTo(new RedState(this->balance_));
+	else if (balance_ > upperLimit)
+		this->context_->TransitionTo(new GoldState(this->balance_));
+}
+
+void GoldState::stateChangeCheck() {
+	if (balance_ < 0.0)
+		this->context_->TransitionTo(new RedState(this->balance_));
+	else if (balance_ < lowerLimit)
+		this->context_->TransitionTo(new SilverState(this->balance_));
+}
+
+/**
+ * The client code.
+ */
+void ClientCode() {
+	Account *context = new Account("Jonas");
+	// New accounts are 'Silver' by default
+	context->TransitionTo(new SilverState(0.0));
+
+	// Apply financial transactions
+	context->deposit(500.0);
+	std::cout << "\n";
+	context->deposit(300.0);
+	std::cout << "\n";
+	context->deposit(550.0);
+	std::cout << "\n";
+	context->payInterest();
+	std::cout << "\n";
+	context->withdraw(2000.00);
+	std::cout << "\n";
+	context->withdraw(1100.00);
+	std::cout << "\n";
+
+	delete context;
+}
+
+int main() {
+	ClientCode();
+	std::cout << "\nEnd of program!" << std::endl;
+	return 0;
+}
+
+// Output:
+/**
+New account created! Owner: Jonas
+Account: Transition to 11SilverState.
+Deposited: 500
+Balance: 500
+Status: 11SilverState
+
+Deposited: 300
+Balance: 800
+Status: 11SilverState
+
+Account: Transition to 9GoldState.
+Deposited: 550
+Balance: 1350
+Status: 9GoldState
+
+Interest paid:
+Balance: 1417.5
+Status: 9GoldState
+
+Account: Transition to 8RedState.
+Withdrew: 2000
+Balance: -582.5
+Status: 8RedState
+
+No funds available for withdrawal!
+Withdrew: 1100
+Balance: -582.5
+Status: 8RedState
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2265,7 +3777,202 @@ Wikipedia says:
 
 #### Programmatic Example
 
-TODO
+```cpp
+#include <iostream>
+#include <list>
+#include <string>
+
+/**
+ * The Abstract Class defines a template method that contains a skeleton of some
+ * algorithm, composed of calls to (usually) abstract primitive operations.
+ *
+ * Concrete subclasses should implement these operations, but leave the template
+ * method itself intact.
+ */
+class DataAccessor {
+	/**
+	 * The template method defines the skeleton of an algorithm.
+	 */
+	public:
+		void TemplateMethod() {
+			this->Connect();
+			this->Select();
+			this->Hook1();
+			this->Process();
+			this->Disconnect();
+			this->Hook2();
+		}
+		/**
+		 * These operations already have implementations.
+		 */
+	protected:
+		//void Connect() const {
+		//	std::cout << "DataAccessor says: I am doing the bulk of the work\n But I let subclasses override some operations...\n";
+		//}
+
+		/**
+		 * These operations have to be implemented in subclasses.
+		 */
+		virtual void Connect() const = 0;
+		virtual void Select() = 0;
+		virtual void Process() = 0;
+		virtual void Disconnect() = 0;
+		/**
+		 * These are "hooks." Subclasses may override them, but it's not mandatory
+		 * since the hooks already have default (but empty) implementation. Hooks
+		 * provide additional extension points in some crucial places of the
+		 * algorithm.
+		 */
+		virtual void Hook1() const {}
+		virtual void Hook2() const {}
+};
+
+/**
+ * Concrete classes have to implement all abstract operations of the base class.
+ * They can also override some operations with a default implementation.
+ */
+class Categories : public DataAccessor {
+	protected:
+		std::list<std::string> categories;
+
+		void Connect() const override {
+			std::cout << "Categories says: Connected. Initiliazing stuff...\n";
+		}
+
+		void Select() override {
+			categories.push_back("Red");
+            categories.push_back("Green");
+            categories.push_back("Blue");
+            categories.push_back("Yellow");
+            categories.push_back("Purple");
+            categories.push_back("White");
+            categories.push_back("Black");
+		}
+
+		void Hook1() const override {
+			std::cout << "Categories says: Overridden Hook1\n";
+		}
+
+		void Process() override {
+			std::cout << "Processing categories:" << std::endl;
+			std::list<std::string>::iterator it = categories.begin();
+			while (it != categories.end()) {
+				std::cout << "categories: " << (*it) << std::endl;
+				++it;
+			}
+		}
+
+		void Disconnect() override {
+			std::cout << "Clearing categories";
+			categories.clear();
+		}
+};
+/**
+ * Usually, concrete classes override only a fraction of base class' operations.
+ */
+class Products : public DataAccessor {
+	protected:
+		std::list<std::string> products;
+
+		void Connect() const override {
+			std::cout << "Products says: Connected. Initiliazing stuff...\n";
+		}
+
+		void Select() override {
+            products.push_back("Car");
+            products.push_back("Bike");
+            products.push_back("Boat");
+            products.push_back("Truck");
+            products.push_back("Moped");
+            products.push_back("Rollerskate");
+            products.push_back("Stroller");
+		}
+
+		void Hook1() const override {
+			std::cout << "Products says: Overridden Hook1\n";
+		}
+
+		void Process() override {
+			std::cout << "Processing products:" << std::endl;
+			std::list<std::string>::iterator it = products.begin();
+			while (it != products.end()) {
+				std::cout << "product: " << (*it) << std::endl;
+				++it;
+			}
+		}
+
+		void Disconnect() override {
+			std::cout << "Clearing products:" << std::endl;
+			products.clear();
+		}
+
+		void Hook2() const override {
+			std::cout << "Products says: Overridden Hook2\n";
+		}
+};
+
+/**
+ * The client code calls the template method to execute the algorithm. Client
+ * code does not have to know the concrete class of an object it works with, as
+ * long as it works with objects through the interface of their base class.
+ */
+void ClientCode(DataAccessor *class_) {
+	// ...
+	class_->TemplateMethod();
+	// ...
+}
+
+int main() {
+	std::cout << "Same client code can work with different subclasses:\n\n";
+	Categories *concreteClass1 = new Categories;
+	ClientCode(concreteClass1);
+	std::cout << "\n\n";
+
+	std::cout << "Same client code can work with different subclasses:\n\n";
+	Products *concreteClass2 = new Products;
+	ClientCode(concreteClass2);
+
+	delete concreteClass1;
+	delete concreteClass2;
+	
+	std::cout << "\nEnd of program!" << std::endl;
+	return 0;
+}
+
+// Output:
+/**
+Same client code can work with different subclasses:
+
+Categories says: Connected. Initiliazing stuff...
+Categories says: Overridden Hook1
+Processing categories:
+categories: Red
+categories: Green
+categories: Blue
+categories: Yellow
+categories: Purple
+categories: White
+categories: Black
+Clearing categories
+
+Same client code can work with different subclasses:
+
+Products says: Connected. Initiliazing stuff...
+Products says: Overridden Hook1
+Processing products:
+product: Car
+product: Bike
+product: Boat
+product: Truck
+product: Moped
+product: Rollerskate
+product: Stroller
+Clearing products:
+Products says: Overridden Hook2
+
+End of program!
+*/
+```
 
 #### When To Use
 
@@ -2282,6 +3989,18 @@ about the architectural patterns, stay tuned for it.
 - Report issues
 - Open pull request with improvements
 - Spread the word
+
+## Other sources
+
+- https://refactoring.guru/design-patterns/cpp
+
+- https://github.com/Junzhuodu/design-patterns
+
+- https://github.com/JakubVojvoda/design-patterns-cpp
+
+- https://www.dofactory.com/net/facade-design-pattern
+
+- https://github.com/ornfelt/DesignPatterns_C-
 
 ## License
 
