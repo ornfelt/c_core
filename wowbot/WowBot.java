@@ -59,8 +59,9 @@ public class WowBot {
 			e.printStackTrace();
 		}
 		
-		bgInput = "2";
-		factionInput = "ally";
+		//bgInput = "2";
+		bgInput = "a";
+		//factionInput = "ally";
 		
 		while (true) {
 			System.out.println("Args: " + bgInput + ", " + factionInput);
@@ -74,11 +75,132 @@ public class WowBot {
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
 				startBgBot(1, 600, isAlly); // AB
 				break;
-			case "2": default:
+			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
 				startBgBot(2, 1900, isAlly); // AV
 				break;
+			case "a": default: 
+				System.out.println("Starting arena bot! isAlly: " + isAlly);
+				//startArenaBot(0, 250); // 2v2
+				//startArenaBot(1, 250); // 3v3
+				//startArenaBot(2, 250); // 5v5
+				startArenaBot(100, 250); // Random arena
+				break;
 			}
+		}
+	}
+
+	void startArenaBot(int arenaId, int bgTimer) {
+		int timeInBg = 0;
+		r.delay(1000);
+		// /target arena char and interact with him
+		sendKey(KeyEvent.VK_ENTER);
+		sendKeys("/target zeggon");
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(700);
+		sendKey(KeyEvent.VK_9);
+		r.delay(1300);
+
+		if (arenaId == 100) // Hard coded, 100 means random arena
+			arenaId = rand.nextInt(3);
+		
+		if (arenaId == 2) // Extend bgTimer slightly for 5v5
+			bgTimer += 50;
+
+		if (arenaId == 0)
+			r.mouseMove(240, 320); // 2v2
+		else if (arenaId == 1)
+			r.mouseMove(240, 335); // 3v3
+		else
+			r.mouseMove(240, 350); // 5v5
+
+		// Click
+		r.delay(700);
+		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+		r.delay(1000);
+		r.mouseMove(290, 505); // Join queue
+		// Click
+		r.delay(500);
+		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		r.delay(3000);
+		r.mouseMove(710, 220); // Accept queue inv
+		// Click
+		r.delay(500);
+		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+		r.delay(5000);
+		// Click
+		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
+		// Wait for arena to start...
+		for (int i = 0; i < 5; i++) {
+			r.delay(9000);
+			if (i == 0) {
+				r.keyPress(KeyEvent.VK_W);
+				r.delay(1000);
+				r.keyRelease(KeyEvent.VK_W);
+			} else if (i == 1) {
+				r.keyPress(KeyEvent.VK_D);
+				r.delay(350);
+				r.keyRelease(KeyEvent.VK_D);
+			} else {
+				// 20 % chance of jumping, else use spell (scroll down)
+				if (rand.nextInt(4) == 0) {
+					r.keyPress(KeyEvent.VK_SPACE);
+					r.delay(100);
+					r.keyRelease(KeyEvent.VK_SPACE);
+				} else
+					r.mouseWheel(1);
+				}
+		}
+		
+		// Random spell casting
+		for (int i = 0; i < 80 && timeInBg < bgTimer; i++) {
+			r.delay(5000); // 5s delay
+
+			// 20 % chance of jumping, else use spell (scroll down)
+			if (rand.nextInt(4) == 0) {
+				r.keyPress(KeyEvent.VK_SPACE);
+				r.delay(200);
+				r.keyRelease(KeyEvent.VK_SPACE);
+			} else
+				r.mouseWheel(1);
+
+			r.delay(1500); // 1.5s delay
+
+			if (timeInBg < 80) {
+				r.keyPress(KeyEvent.VK_W);
+				r.delay(100);
+				r.keyRelease(KeyEvent.VK_W);
+				r.delay(100);
+			}
+
+			r.delay(2500); // 2.5s delay
+			// Use E spell
+			if (timeInBg < 80) {
+				r.keyPress(KeyEvent.VK_E);
+				r.delay(100);
+				r.keyRelease(KeyEvent.VK_E);
+				r.delay(100);
+			}
+
+			r.delay(1500);
+			// Use R spell
+			if (timeInBg < 80) {
+				r.keyPress(KeyEvent.VK_R);
+				r.delay(100);
+				r.keyRelease(KeyEvent.VK_R);
+				r.delay(100);
+			}
+
+			timeInBg += 11;
+			System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
 	}
 	
@@ -96,14 +218,23 @@ public class WowBot {
 
 		r.delay(1000);
 		if (bg == 0)
-			//r.mouseMove(240, 240); // WSG when WSG at second?
-			r.mouseMove(240, 250); // WSG when WSG at third
+			r.mouseMove(240, 240); // WSG when WSG at second?
+			//r.mouseMove(240, 250); // WSG when WSG at third
 		else if (bg == 1)
-			//r.mouseMove(240, 250); // AB
-			r.mouseMove(240, 260); // AB when AB at fourth
+			r.mouseMove(240, 250); // AB
+			//r.mouseMove(240, 260); // AB when AB at fourth
 		else
-			//r.mouseMove(240, 260); // AV
-			r.mouseMove(240, 280); // AV when AV at fifth
+			r.mouseMove(240, 260); // AV
+			//r.mouseMove(240, 280); // AV when AV at fifth
+		
+		// USE THIS IF LOW LEVEL
+		//if (bg == 0)
+		//	r.mouseMove(240, 220); // WSG
+		//else if (bg == 1)
+		//	r.mouseMove(240, 240); // AB
+		//else
+		//	r.mouseMove(240, 255); // AV
+
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
