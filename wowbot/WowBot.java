@@ -59,9 +59,10 @@ public class WowBot {
 			e.printStackTrace();
 		}
 		
-		//bgInput = "2";
-		bgInput = "a";
-		//factionInput = "ally";
+		bgInput = "r";
+		//bgInput = "a";
+		factionInput = "ally";
+		boolean isLowLevel = true;
 		
 		while (true) {
 			System.out.println("Args: " + bgInput + ", " + factionInput);
@@ -69,33 +70,40 @@ public class WowBot {
 			switch(bgInput) {
 			case "0":
 				System.out.println("Starting WSG bot! isAlly: " + isAlly);
-				startBgBot(0, 1700, isAlly); // WSG
+				startBgBot(0, 1700, isAlly, isLowLevel); // WSG
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 600, isAlly); // AB
+				startBgBot(1, 600, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 1900, isAlly); // AV
+				startBgBot(2, 1900, isAlly, isLowLevel); // AV
+				break;
+			case "r":
+				System.out.println("Starting random BG bot! isAlly: " + isAlly);
+				startBgBot(100, 0, isAlly, isLowLevel); // Random BG's
 				break;
 			case "a": default: 
 				System.out.println("Starting arena bot! isAlly: " + isAlly);
-				//startArenaBot(0, 250); // 2v2
-				//startArenaBot(1, 250); // 3v3
-				//startArenaBot(2, 250); // 5v5
-				startArenaBot(100, 250); // Random arena
+				//startArenaBot(0, 250, isAlly); // 2v2
+				//startArenaBot(1, 250, isAlly); // 3v3
+				//startArenaBot(2, 250, isAlly); // 5v5
+				startArenaBot(100, 250, isAlly); // Random arena
 				break;
 			}
 		}
 	}
 
-	void startArenaBot(int arenaId, int bgTimer) {
+	void startArenaBot(int arenaId, int bgTimer, boolean isAlly) {
 		int timeInBg = 0;
 		r.delay(1000);
 		// /target arena char and interact with him
 		sendKey(KeyEvent.VK_ENTER);
-		sendKeys("/target zeggon");
+		if (isAlly)
+			sendKeys("/target beka");
+		else
+			sendKeys("/target zeggon");
 		sendKey(KeyEvent.VK_ENTER);
 		r.delay(700);
 		sendKey(KeyEvent.VK_9);
@@ -204,7 +212,7 @@ public class WowBot {
 		}
 	}
 	
-	void startBgBot(int bg, int bgTimer, boolean isAlly) {
+	void startBgBot(int bg, int bgTimer, boolean isAlly, boolean isLowLevel) {
 		int timeInBg = 0;
 		// Open pvp window
 		sendKey(KeyEvent.VK_H);
@@ -215,6 +223,17 @@ public class WowBot {
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+		
+		// Handle random bg
+		if (bg == 100) // Hard coded, 100 means random arena
+			bg = rand.nextInt(3);
+		// Set correct bgTimer
+		if (bg == 0)
+			bgTimer = 1700;
+		else if (bg == 0)
+			bgTimer = 600;
+		else
+			bgTimer = 1900;
 
 		r.delay(1000);
 		if (bg == 0)
@@ -223,17 +242,20 @@ public class WowBot {
 		else if (bg == 1)
 			r.mouseMove(240, 250); // AB
 			//r.mouseMove(240, 260); // AB when AB at fourth
+			//r.mouseMove(240, 240); // AB when AB at second
 		else
 			r.mouseMove(240, 260); // AV
 			//r.mouseMove(240, 280); // AV when AV at fifth
 		
 		// USE THIS IF LOW LEVEL
-		//if (bg == 0)
-		//	r.mouseMove(240, 220); // WSG
-		//else if (bg == 1)
-		//	r.mouseMove(240, 240); // AB
-		//else
-		//	r.mouseMove(240, 255); // AV
+		if (isLowLevel) {
+			if (bg == 0)
+				r.mouseMove(240, 220); // WSG
+			else if (bg == 1)
+				r.mouseMove(240, 240); // AB
+			else
+				r.mouseMove(240, 255); // AV
+		}
 
 		// Click
 		r.delay(500);
@@ -272,7 +294,7 @@ public class WowBot {
 			r.delay(1000);
 			r.keyPress(KeyEvent.VK_A);
 			if (isAlly)
-				r.delay(495); // Ally
+				r.delay(500); // Ally
 			else
 				r.delay(455); // Horde
 			r.keyRelease(KeyEvent.VK_A);
