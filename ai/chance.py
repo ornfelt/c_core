@@ -254,4 +254,3 @@ if __name__ == '__main__':
     plt.show()
     plt.semilogy(score_tracker, "b--")
     plt.show()
-	
