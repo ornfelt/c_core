@@ -41,32 +41,39 @@ public:
         graph[u].push_back(v);
     }
 
-    void DFSUtil(int v, std::unordered_set<int>& visited, const int& target_v) {
-        visited.insert(v);
-        if (std::find(node_history[curr_start_id].begin(), node_history[curr_start_id].end(), v) == node_history[curr_start_id].end() && v != curr_start_id)
-            node_history[curr_start_id].push_back(v);
+    void DFSUtil(int start_v, std::unordered_set<int>& visited, const int& target_v) {
+        std::stack<int> stack;
+        stack.push(start_v);
 
-        if (v == target_v) {
-            if (should_print)
-                std::cout << v << " Target found!" << std::endl;
-            target_found = true;
-            //for (auto visited_node : visited)
-            //    found_targets[target_v].insert(visited_node);
-            found_targets[target_v].insert(visited.begin(), visited.end());
-            return;
-        } else if (!target_found) {
-            if (should_print)
-                std::cout << v << " ";
-            for (const int& neighbour : graph[v]) {
-                if (visited.find(neighbour) == visited.end())
-                    DFSUtil(neighbour, visited, target_v);
+        while (!stack.empty()) {
+            int v = stack.top();
+            stack.pop();
+
+            visited.insert(v);
+            if (std::find(node_history[curr_start_id].begin(), node_history[curr_start_id].end(), v) == node_history[curr_start_id].end() && v != curr_start_id)
+                node_history[curr_start_id].push_back(v);
+
+            if (v == target_v) {
+                if (should_print)
+                    std::cout << v << " Target found!" << std::endl;
+                target_found = true;
+                found_targets[target_v].insert(visited.begin(), visited.end());
+                return;
+            } else if (!target_found) {
+                if (should_print)
+                    std::cout << v << " ";
+                for (const int& neighbour : graph[v]) {
+                    if (visited.find(neighbour) == visited.end())
+                        stack.push(neighbour);
+                }
             }
         }
     }
 
     bool DFS_search(int start_id, const int& target_id) {
         if (should_print)
-            std::cout << "start_id: " << start_id << "target_id: " << target_id << std::endl;
+            std::cout << "start_id: " << start_id << " target_id: " << target_id << std::endl;
+
         curr_start_id = start_id;
         std::unordered_set<int> visited;
 
@@ -82,19 +89,32 @@ public:
                 }
             } else {
                 start_id = node_history[start_id].back();
-                //std::copy(node_history[start_id].begin(),node_history[start_id].end(),std::inserter(visited,visited.end()));
                 visited.insert(node_history[start_id].begin(), node_history[start_id].end());
             }
         }
 
         target_found = false;
-        for (int vertex : graph[start_id]) {
-            if (visited.find(vertex) == visited.end() && !target_found)
+        std::stack<int> stack;
+        stack.push(start_id);
+
+        while (!stack.empty()) {
+            int vertex = stack.top();
+            stack.pop();
+
+            if (visited.find(vertex) == visited.end() && !target_found) {
                 DFSUtil(vertex, visited, target_id);
+            }
 
             if (target_found)
                 return true;
+
+            for (int v : graph[start_id]) {
+                if (visited.find(v) == visited.end() && !target_found) {
+                    stack.push(v);
+                }
+            }
         }
+
         return target_found;
     }
 };
