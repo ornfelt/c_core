@@ -10,6 +10,8 @@
 #define OUTLAND 1
 #define TRICKERER_SQL 1
 
+// Compile with: g++ -O2 -Wall dfs.cpp o dfs
+
 std::vector<std::string> read_lines_from_file(const std::string& filename) {
     std::vector<std::string> lines;
     std::ifstream file(filename);
@@ -35,7 +37,6 @@ private:
 public:
     std::unordered_map<int, std::unordered_set<int>> found_targets;
     bool should_print = false;
-    int used_found_targets_count = 0;
 
     void addEdge(const int& u, const int& v) {
         graph[u].push_back(v);
@@ -190,7 +191,7 @@ int main() {
         }
     }
 
-//    g.should_print = true;
+    g.should_print = true;
 #if OUTLAND && !TRICKERER_SQL
     bool test_bool = g.DFS_search(2418, 2474);
     std::cout << "\n" << test_bool << std::endl;
@@ -226,7 +227,7 @@ int main() {
     // Test print zones
     std::cout << "3228 zone_id: " << node_zones[3228] << std::endl;
     std::cout << "3225 zone_id: " << node_zones[3225] << std::endl;
-#else
+#elif OUTLAND && TRICKERER_SQL
     bool test_bool = g.DFS_search(2418, 2864);
     std::cout << "\n" << test_bool << std::endl;
     assert(test_bool);
@@ -237,6 +238,32 @@ int main() {
     std::cout << "\n" << test_bool << std::endl;
     assert(test_bool);
     test_bool = g.DFS_search(3442, 3778);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+#else
+    // These will fail - trickerer's northrend nodes aren't "fully linked"
+    bool test_bool = g.DFS_search(4854, 5038);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(5038, 4854);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(4719, 5038);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(5038, 4719);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(5038, 4103);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(5038, 3978);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(5038, 3923);
+    std::cout << "\n" << test_bool << std::endl;
+    assert(test_bool);
+    test_bool = g.DFS_search(4103, 4132);
     std::cout << "\n" << test_bool << std::endl;
     assert(test_bool);
 #endif
