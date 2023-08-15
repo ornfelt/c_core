@@ -24,3 +24,5 @@ graph_wander_nodes/
 **/x64/
 **/Debug/
 **/Release/
+**/CMakeFiles/
+**/helloworld.dir/
