@@ -29,7 +29,7 @@ import javax.swing.JOptionPane;
 
 public class WowBot {
 	
-	/* Variables needed for registration */
+	/* Variables needed for robot */
 	private Robot r;
 	Random rand;
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy/MM/dd");
@@ -58,8 +58,8 @@ public class WowBot {
 			e.printStackTrace();
 		}
 		
-		bgInput = "r";
-		//bgInput = "a";
+		//bgInput = "r";
+		bgInput = "a";
 		//factionInput = "ally";
 		boolean isLowLevel = false;
 		
@@ -96,7 +96,7 @@ public class WowBot {
 	
 	void startArenaBot(int arenaId, int bgTimer, boolean isAlly) {
 		int timeInBg = 0;
-		int maxActionTime = 50;
+		int maxActionTime = 45;
 		r.delay(1000);
 		// /target arena char and interact with him
 		sendKey(KeyEvent.VK_ENTER);
@@ -304,7 +304,7 @@ public class WowBot {
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
-		// Wait for bg to start...
+		// Wait for BG to start...
 		if (bg == 0) {
 			r.delay(1000);
 			r.keyPress(KeyEvent.VK_D);
