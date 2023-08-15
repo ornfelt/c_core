@@ -7,7 +7,7 @@ import com.sun.jna.win32.*;
 
 /**
  * This class is used to shift window focus to the "wow" program
- * @author Jonas Örnfelt
+ * @author Jonas Ã–rnfelt
  *
  */
 public class WowTabFinder {
@@ -26,7 +26,7 @@ public class WowTabFinder {
 	public void showWowWindow() {
 		User32 user32 = User32.instance;  
         HWND hWnd = user32.FindWindow(null, "World of Warcraft"); // sets focus to wow 
-		//HWND hWnd = user32.FindWindow(null, "Hämtade filer"); // sets focus to my opened 'Downloads' folder
+		//HWND hWnd = user32.FindWindow(null, "HÃ¤mtade filer"); // sets focus to my opened 'Downloads' folder
         user32.ShowWindow(hWnd, User32.SW_SHOW);  
         user32.SetForegroundWindow(hWnd); 
 	}
