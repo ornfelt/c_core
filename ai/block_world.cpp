@@ -436,9 +436,9 @@ int main(){
 	// 10 million
 	/* for(int i = 0; i < 10000000; i++){ */
 	// 100 million
-	/* for(int i = 0; i < 100000000; i++){ */
+	for(int i = 0; i < 100000000; i++){
 	// 1 billion (1 miljard)
-	for(int i = 0; i < 1000000000; i++){ // Takes a few minutes...
+	/* for(int i = 0; i < 1000000000; i++){ // Takes a few minutes... */
 		genRandomState(state[0]);
 		/* printValues(state[0]); */
 

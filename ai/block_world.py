@@ -248,8 +248,8 @@ solve_game()
 games_solved = 0
 
 #for i in range(100000): # 100k (takes 1 sec)
-for i in range(1000000): # 1 million (takes 5-10 secs)
-#for i in range(10000000): # 10 million (takes 2-3 mins)
+#for i in range(1000000): # 1 million (takes 5-10 secs)
+for i in range(10000000): # 10 million (takes 2-3 mins)
     new_state = RandomStartState()
     #print_environment(new_state)
     CurrentState = new_state
