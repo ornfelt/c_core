@@ -27,15 +27,15 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 
-public class WowBot {
+public class wowbot {
 	
-	/* Variables needed for registration */
+	/* Variables needed for Robot */
 	private Robot r;
 	Random rand;
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy/MM/dd");
 	LocalDateTime now;
 	
-	public WowBot() {
+	public wowbot() {
 		rand = new Random();
 		try {
 			r = new Robot();
@@ -58,9 +58,9 @@ public class WowBot {
 			e.printStackTrace();
 		}
 		
-		bgInput = "r";
-		//bgInput = "a";
-		//factionInput = "ally";
+		//bgInput = "r";
+		bgInput = "a";
+		factionInput = "ally";
 		boolean isLowLevel = false;
 		
 		while (true) {
@@ -93,17 +93,27 @@ public class WowBot {
 			}
 		}
 	}
-	
+
 	void startArenaBot(int arenaId, int bgTimer, boolean isAlly) {
 		int timeInBg = 0;
 		int maxActionTime = 50;
 		r.delay(1000);
 		// /target arena char and interact with him
 		sendKey(KeyEvent.VK_ENTER);
+		// Enter '/' manually for linux
+		r.delay(100);
+		r.keyPress(KeyEvent.VK_SHIFT);
+		r.delay(60);
+		r.keyPress(KeyEvent.VK_7);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_7);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_SHIFT);
+		r.delay(60);
 		if (isAlly)
-			sendKeys("/target beka");
+			sendKeys("target beka");
 		else
-			sendKeys("/target zeggon");
+			sendKeys("target zeggon");
 		sendKey(KeyEvent.VK_ENTER);
 		r.delay(700);
 		sendKey(KeyEvent.VK_9);
@@ -116,11 +126,11 @@ public class WowBot {
 			bgTimer += 50;
 
 		if (arenaId == 0)
-			r.mouseMove(240, 320); // 2v2
+			r.mouseMove(240, 408); // 2v2
 		else if (arenaId == 1)
-			r.mouseMove(240, 335); // 3v3
+			r.mouseMove(240, 420); // 3v3
 		else
-			r.mouseMove(240, 350); // 5v5
+			r.mouseMove(240, 440); // 5v5
 
 		// Click
 		r.delay(700);
@@ -128,14 +138,14 @@ public class WowBot {
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 		r.delay(1000);
-		r.mouseMove(250, 530); // Join queue
+		r.mouseMove(290, 668); // Join queue
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		r.delay(3000);
-		r.mouseMove(670, 210); // Accept queue inv
+		r.mouseMove(850, 265); // Accept queue inv
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -240,13 +250,13 @@ public class WowBot {
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
 		// Press Battlegrounds
-		r.mouseMove(200, 550);
+		r.mouseMove(180, 695);
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// Handle random BG
+		// Handle random bg
 		if (bg == 100) // Hard coded, 100 means random arena
 			bg = rand.nextInt(3);
 		// Set correct bgTimer
@@ -259,25 +269,20 @@ public class WowBot {
 
 		r.delay(1000);
 		if (bg == 0)
-			//r.mouseMove(200, 235); // WSG 1
-			r.mouseMove(200, 250); // WSG 2
+			r.mouseMove(240, 308); // WSG 1
 		else if (bg == 1)
-			//r.mouseMove(200, 235); // AB 1
-			//r.mouseMove(200, 250); // AB 2
-			r.mouseMove(200, 260); // AB 3
+			r.mouseMove(240, 330); // AB 2
 		else
-			//r.mouseMove(200, 235); // AV 1
-			//r.mouseMove(200, 260); // AV 3
-			r.mouseMove(200, 270); // AV 4
+			r.mouseMove(240, 340); // AV 3
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
 			if (bg == 0)
-				r.mouseMove(200, 215); // WSG
+				r.mouseMove(240, 308); // WSG
 			else if (bg == 1)
-				r.mouseMove(200, 235); // AB
+				r.mouseMove(240, 330); // AB
 			else
-				r.mouseMove(200, 250); // AV
+				r.mouseMove(240, 340); // AV
 		}
 
 		// Click
@@ -286,14 +291,14 @@ public class WowBot {
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 		r.delay(1000);
-		r.mouseMove(250, 530); // Join queue
+		r.mouseMove(290, 658); // Join queue
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		r.delay(3000);
-		r.mouseMove(670, 210); // Accept queue inv
+		r.mouseMove(850, 265); // Accept queue inv
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -317,9 +322,9 @@ public class WowBot {
 			r.delay(1000);
 			r.keyPress(KeyEvent.VK_A);
 			if (isAlly)
-				r.delay(495); // Ally
+				r.delay(500); // Ally
 			else
-				r.delay(453); // Horde
+				r.delay(450); // Horde
 			r.keyRelease(KeyEvent.VK_A);
 			r.delay(500);
 			r.keyPress(KeyEvent.VK_W);
@@ -343,9 +348,9 @@ public class WowBot {
 					r.delay(100);
 					r.keyPress(KeyEvent.VK_D);
 					if (isAlly)
-						r.delay(150);
+						r.delay(130);
 					else
-						r.delay(80);
+						r.delay(70);
 					r.keyRelease(KeyEvent.VK_D);
 				}
 			}
@@ -421,7 +426,7 @@ public class WowBot {
 				System.out.println("Trying to release... Loop count: " + i);
 				// Click
 				r.delay(500);
-				r.mouseMove(670, 210);
+				r.mouseMove(900, 265);
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
