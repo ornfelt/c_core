@@ -20,3 +20,7 @@ lrc_git/
 graph_wander_nodes/
 **/.build
 **/build
+**/.vs/
+**/x64/
+**/Debug/
+**/Release/
