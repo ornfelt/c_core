@@ -60,7 +60,7 @@ public class wowbot {
 		
 		//bgInput = "r";
 		bgInput = "a";
-		factionInput = "ally";
+		//factionInput = "ally";
 		boolean isLowLevel = false;
 		
 		while (true) {
@@ -256,7 +256,7 @@ public class wowbot {
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// Handle random BG
+		// Handle random bg
 		if (bg == 100) // Hard coded, 100 means random arena
 			bg = rand.nextInt(3);
 		// Set correct bgTimer
@@ -278,11 +278,11 @@ public class wowbot {
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
 			if (bg == 0)
-				r.mouseMove(240, 308); // WSG
+				r.mouseMove(240, 270); // WSG
 			else if (bg == 1)
-				r.mouseMove(240, 330); // AB
+				r.mouseMove(240, 290); // AB
 			else
-				r.mouseMove(240, 340); // AV
+				r.mouseMove(240, 310); // AV
 		}
 
 		// Click
