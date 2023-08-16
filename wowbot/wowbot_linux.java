@@ -60,7 +60,7 @@ public class wowbot {
 		
 		bgInput = "r";
 		//bgInput = "a";
-		factionInput = "ally";
+		//factionInput = "ally";
 		boolean isLowLevel = false;
 		
 		while (true) {
@@ -268,7 +268,6 @@ public class wowbot {
 			bgTimer = 1950;
 
 		r.delay(1000);
-		bg = 2;
 		if (bg == 0)
 			r.mouseMove(240, 290); // WSG 1
 			//r.mouseMove(240, 308); // WSG 2
