@@ -58,9 +58,9 @@ public class wowbot {
 			e.printStackTrace();
 		}
 		
-		//bgInput = "r";
-		bgInput = "a";
-		//factionInput = "ally";
+		bgInput = "r";
+		//bgInput = "a";
+		factionInput = "ally";
 		boolean isLowLevel = false;
 		
 		while (true) {
@@ -268,12 +268,16 @@ public class wowbot {
 			bgTimer = 1950;
 
 		r.delay(1000);
+		bg = 2;
 		if (bg == 0)
-			r.mouseMove(240, 308); // WSG 1
+			r.mouseMove(240, 290); // WSG 1
+			//r.mouseMove(240, 308); // WSG 2
 		else if (bg == 1)
-			r.mouseMove(240, 330); // AB 2
+			r.mouseMove(240, 308); // AB 2
+			//r.mouseMove(240, 330); // AB 3
 		else
-			r.mouseMove(240, 340); // AV 3
+			r.mouseMove(240, 330); // AV 3
+			//r.mouseMove(240, 340); // AV 4
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
@@ -282,7 +286,7 @@ public class wowbot {
 			else if (bg == 1)
 				r.mouseMove(240, 290); // AB
 			else
-				r.mouseMove(240, 310); // AV
+				r.mouseMove(240, 308); // AV
 		}
 
 		// Click
