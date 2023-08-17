@@ -58,9 +58,9 @@ public class wowbot {
 			e.printStackTrace();
 		}
 		
-		//bgInput = "ra"; // Both random BGs and arenas
+		bgInput = "ra"; // Both random BGs and arenas
 		//bgInput = "r"; // Random BGs
-		bgInput = "a"; // Random arenas
+		//bgInput = "a"; // Random arenas
 		//factionInput = "ally";
 		boolean isLowLevel = false;
 		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
