@@ -49,7 +49,7 @@ public class wowbot {
 		clipboard.setContents(stringSelection, null);
 	}
 	
-	// Start bot
+	// Start BOT
 	void startBot(String bgInput, String factionInput) {
 		// 2s thread sleep delay
 		try {
@@ -58,10 +58,14 @@ public class wowbot {
 			e.printStackTrace();
 		}
 		
-		bgInput = "r";
-		//bgInput = "a";
+		//bgInput = "ra"; // Both random BGs and arenas
+		//bgInput = "r"; // Random BGs
+		bgInput = "a"; // Random arenas
 		//factionInput = "ally";
 		boolean isLowLevel = false;
+		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
+		int bgCountMax = 10; // Max amount of bgCount before switching to BG / arena
+		boolean isArena = false; // Start with BG
 		
 		while (true) {
 			System.out.println("Args: " + bgInput + ", " + factionInput);
@@ -79,9 +83,32 @@ public class wowbot {
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
 				startBgBot(2, 1900, isAlly, isLowLevel); // AV
 				break;
+			case "ra":
+				if (bgCount < bgCountMax && isArena) {
+					System.out.println("Starting arena bot! isAlly: " + isAlly);
+					startArenaBot(100, 250, isAlly); // Random arena
+				} else if (bgCount < bgCountMax && !isArena) {
+					System.out.println("Starting random BG bot! isAlly: " + isAlly);
+					startBgBot(100, 0, isAlly, isLowLevel); // Random BGs
+				} else {
+					// This means bgCountMax has been reached
+					if (isArena) {
+						System.out.println("Switching to playing BGs");
+						System.out.println("Starting random BG bot! isAlly: " + isAlly);
+						startBgBot(100, 0, isAlly, isLowLevel); // Random BGs
+					} else {
+						System.out.println("Switching to playing arenas");
+						System.out.println("Starting arena bot! isAlly: " + isAlly);
+						startArenaBot(100, 250, isAlly); // Random arena
+					}
+					bgCount = 0;
+					isArena = !isArena;
+				}
+				bgCount++;
+				break;
 			case "r":
 				System.out.println("Starting random BG bot! isAlly: " + isAlly);
-				startBgBot(100, 0, isAlly, isLowLevel); // Random BG's
+				startBgBot(100, 0, isAlly, isLowLevel); // Random BGs
 				break;
 			case "a": default: 
 				System.out.println("Starting arena bot! isAlly: " + isAlly);
@@ -98,10 +125,20 @@ public class wowbot {
 		int timeInBg = 0;
 		int maxActionTime = 45;
 		r.delay(1000);
+		// Teleport to arena NPC
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(200);
+		if (isAlly)
+			sendKeys(".go creature 68938"); // select guid from creature where id1=19911; (id from arena npc from wowhead)
+		else
+			sendKeys(".go creature 4762"); // select guid from creature where id1=19912; (id from arena npc from wowhead)
+		sendKey(KeyEvent.VK_ENTER);
+
+		r.delay(5000);
 		// /target arena char and interact with him
 		sendKey(KeyEvent.VK_ENTER);
-		// Enter '/' manually for linux
-		r.delay(100);
+		// Enter '/' manually for Linux
+		r.delay(200);
 		r.keyPress(KeyEvent.VK_SHIFT);
 		r.delay(60);
 		r.keyPress(KeyEvent.VK_7);
@@ -240,13 +277,13 @@ public class wowbot {
 			}
 
 			timeInBg += 11;
-			System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
+			//System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
 	}
 	
 	void startBgBot(int bg, int bgTimer, boolean isAlly, boolean isLowLevel) {
 		int timeInBg = 0;
-		// Open pvp window
+		// Open PVP window
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
 		// Press Battlegrounds
@@ -256,7 +293,7 @@ public class wowbot {
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
-		// Handle random bg
+		// Handle random BG
 		if (bg == 100) // Hard coded, 100 means random arena
 			bg = rand.nextInt(3);
 		// Set correct bgTimer
@@ -397,7 +434,7 @@ public class wowbot {
 			// Don't turn in AB / AV until a few minutes have passed 
 			if (bg == 0 || timeInBg > 150) {
 				if (rand.nextInt(2) == 0) {
-					System.out.println("Turning left");
+					//System.out.println("Turning left");
 					r.keyPress(KeyEvent.VK_A);
 					r.delay(500);
 					r.keyRelease(KeyEvent.VK_A);
@@ -410,7 +447,7 @@ public class wowbot {
 					}
 				}
 				else {
-					System.out.println("Turning right");
+					//System.out.println("Turning right");
 					r.keyPress(KeyEvent.VK_D);
 					r.delay(500);
 					r.keyRelease(KeyEvent.VK_D);
@@ -426,7 +463,7 @@ public class wowbot {
 			
 			// 30 % chance of clicking release and wait for 30 sec
 			if (rand.nextInt(3) == 0) {
-				System.out.println("Trying to release... Loop count: " + i);
+				//System.out.println("Trying to release... Loop count: " + i);
 				// Click
 				r.delay(500);
 				r.mouseMove(900, 265);
@@ -459,7 +496,7 @@ public class wowbot {
 			r.delay(100);
 			r.keyRelease(KeyEvent.VK_R);
 			r.delay(100);
-			System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
+			//System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
 		
 		// rand.nextInt(100) < 34
