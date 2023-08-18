@@ -26,6 +26,11 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
+class MousePos {
+	  final int x;
+	  final int y;
+	  MousePos(int x, int y) {this.x=x;this.y=y;}
+}
 
 public class wowbot {
 	
@@ -34,6 +39,21 @@ public class wowbot {
 	Random rand;
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy/MM/dd");
 	LocalDateTime now;
+
+	private MousePos arena2v2 = new MousePos(240, 408);
+	private MousePos arena3v3 = new MousePos(240, 420);
+	private MousePos arena5v5 = new MousePos(240, 440);
+	private MousePos queueJoin = new MousePos(290, 662);
+	private MousePos queueAccept = new MousePos(850, 265);
+	private MousePos bgPress = new MousePos(180, 695);
+	private MousePos bg1 = new MousePos(240, 290);
+	private MousePos bg2 = new MousePos(240, 308);
+	private MousePos bg3 = new MousePos(240, 330);
+	private MousePos bg4 = new MousePos(240, 340);
+	private MousePos lowLevelWsg = new MousePos(240, 270);
+	private MousePos lowLevelAb = new MousePos(240, 290);
+	private MousePos lowLevelAv = new MousePos(240, 308);
+	private MousePos acceptRess = new MousePos(900, 265);
 	
 	public wowbot() {
 		rand = new Random();
@@ -61,7 +81,7 @@ public class wowbot {
 		bgInput = "ra"; // Both random BGs and arenas
 		//bgInput = "r"; // Random BGs
 		//bgInput = "a"; // Random arenas
-		//factionInput = "ally";
+		factionInput = "ally";
 		boolean isLowLevel = false;
 		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 		int bgCountMax = 10; // Max amount of bgCount before switching to BG / arena
@@ -77,17 +97,17 @@ public class wowbot {
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 600, isAlly, isLowLevel); // AB
+				startBgBot(1, 650, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 1900, isAlly, isLowLevel); // AV
+				startBgBot(2, 1950, isAlly, isLowLevel); // AV
 				break;
 			case "ra":
 				if (bgCount < bgCountMax && isArena) {
 					System.out.println("Starting arena bot! isAlly: " + isAlly);
 					startArenaBot(100, 250, isAlly); // Random arena
-				} else if (bgCount < bgCountMax && !isArena) {
+				} else if (bgCount < (bgCountMax/2) && !isArena) {
 					System.out.println("Starting random BG bot! isAlly: " + isAlly);
 					startBgBot(100, 0, isAlly, isLowLevel); // Random BGs
 				} else {
@@ -163,11 +183,11 @@ public class wowbot {
 			bgTimer += 50;
 
 		if (arenaId == 0)
-			r.mouseMove(240, 408); // 2v2
+			r.mouseMove(arena2v2.x, arena2v2.y); // 2v2
 		else if (arenaId == 1)
-			r.mouseMove(240, 420); // 3v3
+			r.mouseMove(arena3v3.x, arena3v3.y); // 3v3
 		else
-			r.mouseMove(240, 440); // 5v5
+			r.mouseMove(arena5v5.x, arena5v5.y); // 5v5
 
 		// Click
 		r.delay(700);
@@ -175,14 +195,14 @@ public class wowbot {
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 		r.delay(1000);
-		r.mouseMove(290, 668); // Join queue
+		r.mouseMove(queueJoin.x, queueJoin.y); // Join queue
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		r.delay(3000);
-		r.mouseMove(850, 265); // Accept queue inv
+		r.mouseMove(queueAccept.x, queueAccept.y); // Accept queue inv
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -286,8 +306,7 @@ public class wowbot {
 		// Open PVP window
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
-		// Press Battlegrounds
-		r.mouseMove(180, 695);
+		r.mouseMove(bgPress.x, bgPress.y); // Press Battlegrounds
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -306,23 +325,25 @@ public class wowbot {
 
 		r.delay(1000);
 		if (bg == 0)
-			r.mouseMove(240, 290); // WSG 1
-			//r.mouseMove(240, 308); // WSG 2
+			//r.mouseMove(bg1.x, bg1.y); // WSG 1
+			r.mouseMove(bg2.x, bg2.y); // WSG 2
 		else if (bg == 1)
-			r.mouseMove(240, 308); // AB 2
-			//r.mouseMove(240, 330); // AB 3
+			//r.mouseMove(bg1.x, bg1.y); // AB 1
+			//r.mouseMove(bg2.x, bg2.y); // AB 2
+			r.mouseMove(bg3.x, bg3.y); // AB 3
 		else
-			r.mouseMove(240, 330); // AV 3
-			//r.mouseMove(240, 340); // AV 4
+			//r.mouseMove(bg1.x, bg1.y); // AV 1
+			//r.mouseMove(bg3.x, bg3.y); // AV 3
+			r.mouseMove(bg4.x, bg4.y); // AV 4
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
 			if (bg == 0)
-				r.mouseMove(240, 270); // WSG
+				r.mouseMove(lowLevelWsg.x, lowLevelWsg.y); // WSG
 			else if (bg == 1)
-				r.mouseMove(240, 290); // AB
+				r.mouseMove(lowLevelAb.x, lowLevelAb.y); // AB
 			else
-				r.mouseMove(240, 308); // AV
+				r.mouseMove(lowLevelAv.x, lowLevelAv.y); // AV
 		}
 
 		// Click
@@ -331,14 +352,14 @@ public class wowbot {
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 		r.delay(1000);
-		r.mouseMove(290, 658); // Join queue
+		r.mouseMove(queueJoin.x, queueJoin.y); // Join queue
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 		
 		r.delay(3000);
-		r.mouseMove(850, 265); // Accept queue inv
+		r.mouseMove(queueAccept.x, queueAccept.y); // Accept queue inv
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -464,14 +485,19 @@ public class wowbot {
 			// 30 % chance of clicking release and wait for 30 sec
 			if (rand.nextInt(3) == 0) {
 				//System.out.println("Trying to release... Loop count: " + i);
-				// Click
+				// First try to accept ress from someone, then try to release
 				r.delay(500);
-				r.mouseMove(900, 265);
+				r.mouseMove(queueAccept.x, queueAccept.y);
+				r.delay(500);
+				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				r.delay(500);
+				r.mouseMove(acceptRess.x, acceptRess.y);
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 				// Wait 30 sec
-				r.delay(15000);
+				r.delay(14000);
 				r.keyPress(KeyEvent.VK_W);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_W);
