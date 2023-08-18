@@ -57,7 +57,7 @@ public class wowbot {
 	
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 700;
-	private static final int AVTIMER = 2000;
+	private static final int AVTIMER = 2300;
 	
 	public wowbot() {
 		rand = new Random();
