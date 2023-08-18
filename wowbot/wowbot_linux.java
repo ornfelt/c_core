@@ -81,7 +81,7 @@ public class wowbot {
 		bgInput = "ra"; // Both random BGs and arenas
 		//bgInput = "r"; // Random BGs
 		//bgInput = "a"; // Random arenas
-		factionInput = "ally";
+		//factionInput = "ally";
 		boolean isLowLevel = false;
 		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 		int bgCountMax = 10; // Max amount of bgCount before switching to BG / arena
@@ -97,11 +97,11 @@ public class wowbot {
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 650, isAlly, isLowLevel); // AB
+				startBgBot(1, 700, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 1950, isAlly, isLowLevel); // AV
+				startBgBot(2, 2000, isAlly, isLowLevel); // AV
 				break;
 			case "ra":
 				if (bgCount < bgCountMax && isArena) {
@@ -319,22 +319,22 @@ public class wowbot {
 		if (bg == 0)
 			bgTimer = 1700;
 		else if (bg == 1)
-			bgTimer = 650;
+			bgTimer = 700;
 		else
-			bgTimer = 1950;
+			bgTimer = 2000;
 
 		r.delay(1000);
 		if (bg == 0)
-			//r.mouseMove(bg1.x, bg1.y); // WSG 1
-			r.mouseMove(bg2.x, bg2.y); // WSG 2
+			r.mouseMove(bg1.x, bg1.y); // WSG 1
+			//r.mouseMove(bg2.x, bg2.y); // WSG 2
 		else if (bg == 1)
 			//r.mouseMove(bg1.x, bg1.y); // AB 1
-			//r.mouseMove(bg2.x, bg2.y); // AB 2
-			r.mouseMove(bg3.x, bg3.y); // AB 3
+			r.mouseMove(bg2.x, bg2.y); // AB 2
+			//r.mouseMove(bg3.x, bg3.y); // AB 3
 		else
 			//r.mouseMove(bg1.x, bg1.y); // AV 1
-			//r.mouseMove(bg3.x, bg3.y); // AV 3
-			r.mouseMove(bg4.x, bg4.y); // AV 4
+			r.mouseMove(bg3.x, bg3.y); // AV 3
+			//r.mouseMove(bg4.x, bg4.y); // AV 4
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
