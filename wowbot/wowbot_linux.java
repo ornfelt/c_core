@@ -55,6 +55,10 @@ public class wowbot {
 	private MousePos lowLevelAv = new MousePos(240, 308);
 	private MousePos acceptRess = new MousePos(900, 265);
 	
+	private static final int WSGTIMER = 1900;
+	private static final int ABTIMER = 700;
+	private static final int AVTIMER = 2000;
+	
 	public wowbot() {
 		rand = new Random();
 		try {
@@ -93,15 +97,15 @@ public class wowbot {
 			switch(bgInput) {
 			case "0":
 				System.out.println("Starting WSG bot! isAlly: " + isAlly);
-				startBgBot(0, 1700, isAlly, isLowLevel); // WSG
+				startBgBot(0, WSGTIMER, isAlly, isLowLevel); // WSG
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 700, isAlly, isLowLevel); // AB
+				startBgBot(1, ABTIMER, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 2000, isAlly, isLowLevel); // AV
+				startBgBot(2, AVTIMER, isAlly, isLowLevel); // AV
 				break;
 			case "ra":
 				if (bgCount < bgCountMax && isArena) {
@@ -317,11 +321,11 @@ public class wowbot {
 			bg = rand.nextInt(3);
 		// Set correct bgTimer
 		if (bg == 0)
-			bgTimer = 1700;
+			bgTimer = WSGTIMER;
 		else if (bg == 1)
-			bgTimer = 700;
+			bgTimer = ABTIMER;
 		else
-			bgTimer = 2000;
+			bgTimer = AVTIMER;
 
 		r.delay(1000);
 		if (bg == 0)
