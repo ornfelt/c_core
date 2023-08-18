@@ -1,9 +1,84 @@
 #pragma once
 
+// Iterator for Vector class. Not particularly difficult in a sense, 
+// since you're really just increment a pointer which can be done without an iterator
+// but the iterator pattern is common in basically every data structure and very useful
+template<typename Vector>
+class VectorIterator
+{
+public:
+	using ValueType = typename Vector::ValueType;
+	using PointerType = ValueType*;
+	using ReferenceType = ValueType&;
+public:
+	// The constructor needs to take in some kind off pointer (where it currently points)
+	VectorIterator(PointerType ptr) : m_ptr(ptr) {}
+
+	VectorIterator& operator++() // Prefix increment operator
+	{
+		m_ptr++;
+		return *this; // Return VectorIterator reference
+	}
+
+	VectorIterator& operator++(int) // Postfix (takes int) increment operator
+	{
+		VectorIterator iterator = *this; // Copy of VectorIterator (just pointer, so not expensive)
+		++(*this); // Calling prefix operator
+		return iterator;
+	}
+
+	VectorIterator& operator--() // Prefix decrement operator
+	{
+		m_ptr--;
+		return *this; // Return VectorIterator reference
+	}
+
+	VectorIterator& operator--(int) // Postfix decrement operator
+	{
+		VectorIterator iterator = *this; // Copy of VectorIterator (just pointer, so not expensive)
+		--(*this); // Calling prefix operator
+		return iterator;
+	}
+
+	ReferenceType operator[](int index) // Index operator (ReferenceType, so modifiable)
+	{
+		//return *(m_ptr[index]); // Also works
+		return *(m_ptr + index);
+	}
+
+	PointerType operator->() // Arrow operator (current position of iterator)
+	{
+		return m_ptr;
+	}
+
+	ReferenceType operator*() // Dereference operator returning referencetype (modifiable)
+	{
+		return *m_ptr;
+	}
+
+	bool operator==(const VectorIterator& other) const // Comparison operator
+	{
+		return m_ptr == other.m_ptr;
+	}
+
+	bool operator!=(const VectorIterator& other) const // Comparison operator (not-equals)
+	{
+		return !(*this == other);
+	}
+
+private:
+	PointerType m_ptr;
+};
+
 template<class T>
 //template<typename T>
 class Vector
 {
+public:
+	using ValueType = T;
+	// With this we can use Iterator in the code instead of VectorIterator.
+	// Also enables the call to for (Vector<int>::Iterator it = values.begin() ...
+	using Iterator = VectorIterator<Vector<T>>; // Iterator with the current vector class
 public:
 	Vector()
 	{
@@ -99,6 +174,16 @@ public:
 		//if (index >= m_size)
 		//	// assert
 		return m_data[index];
+	}
+
+	Iterator begin()
+	{
+		return Iterator(m_data);
+	}
+
+	Iterator end()
+	{
+		return Iterator(m_data + m_size);
 	}
 
 private:

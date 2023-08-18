@@ -180,8 +180,65 @@ int main()
 	PrintVector(intVector);
 	intVector.clear();
 
-	// TODO: erasing elements, pushing into the middle of the vector (not recommended with vector), iterators, etc...
+	// Testing iterators
+	//Vector<int> values = { 1, 2, 3, 4, 5 }; // We don't have initiliazer list support
+	Vector<int> values;
+	values.emplace_back(1);
+	values.emplace_back(2);
+	values.emplace_back(3);
+	values.emplace_back(4);
+	values.emplace_back(5);
 
+	std::cout << "Not using iterators:\n";
+	for (size_t i = 0; i < values.size(); i++)
+		std::cout << values[i] << std::endl;
+
+	std::cout << "Range-based for loop:\n";
+	for (auto& value : values)
+		std::cout << value << std::endl;
+
+	std::cout << "Iterator:\n";
+	for (Vector<int>::Iterator it = values.begin(); it != values.end(); it++)
+		std::cout << *it << std::endl;
+
+	// Using string (or any type)
+	//Vector<std::string> anyValues;
+	Vector<float> anyValues;
+	//anyValues.emplace_back("1");
+	//anyValues.emplace_back("test");
+	//anyValues.emplace_back("3");
+	anyValues.emplace_back(1.0f);
+	anyValues.emplace_back(5.21f);
+	anyValues.emplace_back(3.0f);
+
+	std::cout << "Not using iterators:\n";
+	for (size_t i = 0; i < anyValues.size(); i++)
+		std::cout << anyValues[i] << std::endl;
+
+	std::cout << "Range-based for loop:\n";
+	for (auto& value : anyValues)
+		std::cout << value << std::endl;
+
+	std::cout << "Iterator:\n";
+	// From: https://stackoverflow.com/questions/40244544/declare-a-vector-through-decltype
+	// std::map<int, int> map;
+	// template <typename T>
+	// auto Copy(T c)
+	// {
+    // std::vector<decltype(c.begin()->first)> lc;
+	// etc...
+	// This std::vector<decltype(c.begin()->first)> might not work due to: The problem is that 
+	// decltype(c.begin()->first) returns a const int (when using libstdc++)
+	// A possible solution is using std::decay_t which will guarantee that it works with libstdc++ and libc++.
+	// Alternatively, std::remove_const_t also works in this particular situation.
+	// For our iterator example, use as below (both versions work)
+	// https://stackoverflow.com/questions/25732386/what-is-stddecay-and-when-it-should-be-used
+	//for (Vector<std::remove_reference<decltype(*anyValues.begin())>::type>::Iterator it = anyValues.begin(); it != anyValues.end(); it++)
+	for (Vector<std::decay_t<decltype(*anyValues.begin())>>::Iterator it = anyValues.begin(); it != anyValues.end(); it++)
+		std::cout << *it << std::endl;
+
+	// TODO: more iterator features like less than, greater than operators, plus and minus operator, const operator, etc...
+	// TODO: erasing elements, pushing into the middle of the vector (not recommended with vector), etc...
 	std::cin.get();
 
 	return 0;
