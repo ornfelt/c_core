@@ -95,7 +95,7 @@ public class WowBot {
 		bgInput = "ra"; // Both random BGs and arenas
 		//bgInput = "r"; // Random BGs
 		//bgInput = "a"; // Random arenas
-		//factionInput = "ally";
+		factionInput = "ally";
 		boolean isLowLevel = false;
 		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 		int bgCountMax = 10; // Max amount of bgCount before switching to BG / arena
@@ -111,11 +111,11 @@ public class WowBot {
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 650, isAlly, isLowLevel); // AB
+				startBgBot(1, 700, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 1950, isAlly, isLowLevel); // AV
+				startBgBot(2, 2000, isAlly, isLowLevel); // AV
 				break;
 			case "ra":
 				if (bgCount < bgCountMax && isArena) {
@@ -154,7 +154,7 @@ public class WowBot {
 			}
 		}
 	}
-	
+
 	void startArenaBot(int arenaId, int bgTimer, boolean isAlly) {
 		int timeInBg = 0;
 		int maxActionTime = 45;
@@ -323,9 +323,9 @@ public class WowBot {
 		if (bg == 0)
 			bgTimer = 1700;
 		else if (bg == 1)
-			bgTimer = 650;
+			bgTimer = 700;
 		else
-			bgTimer = 1950;
+			bgTimer = 2000;
 
 		r.delay(1000);
 		if (bg == 0)
