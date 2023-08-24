@@ -61,7 +61,7 @@ public class WowBot {
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
-	private static final int AVTIMER = 2500;
+	private static final int AVTIMER = 2750;
 	
 	// Queue settings
 	private static boolean isArena = false; // Start with BG when random
