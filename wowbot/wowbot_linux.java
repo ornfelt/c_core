@@ -60,7 +60,7 @@ public class wowbot {
 	
 	// Timers
 	private static final int WSGTIMER = 1900;
-	private static final int ABTIMER = 700;
+	private static final int ABTIMER = 1700;
 	private static final int AVTIMER = 2300;
 	
 	// Queue settings
@@ -72,7 +72,7 @@ public class wowbot {
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "ally";
+	private static String factionInput = "horde";
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
 		put(0, 1); // WSG 1
