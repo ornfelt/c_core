@@ -22,6 +22,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -40,6 +42,7 @@ public class WowBot {
 	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy/MM/dd");
 	LocalDateTime now;
 
+	// Configuration
 	//private MousePos arena2v2 = new MousePos(240, 320);
 	//private MousePos arena3v3 = new MousePos(240, 335);
 	//private MousePos arena5v5 = new MousePos(240, 350);
@@ -68,6 +71,35 @@ public class WowBot {
 	private MousePos lowLevelAb = new MousePos(140, 245);
 	private MousePos lowLevelAv = new MousePos(140, 255);
 	private MousePos acceptRess = new MousePos(675, 225);
+
+	// Timers
+	private static final int WSGTIMER = 1900;
+	private static final int ABTIMER = 1700;
+	private static final int AVTIMER = 2300;
+	
+	// Queue settings
+	private static boolean isArena = false; // Start with BG when random
+	private static boolean isGroup = true; // If group queue (BG only)
+	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
+	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
+	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
+	private static String bgInput = "ra"; // Both random BGs and arena
+	//private static String bgInput = "r"; // Random BGs
+	//private static String bgInput = "a"; // Random arenas
+	private static String factionInput = "horde";
+	// The order of the BGs might change depending on current Call to Arms
+	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
+		put(0, 1); // WSG 1
+		//put(0, 2); // WSG 2
+
+		//put(1, 1); // AB 1
+		put(1, 2); // AB 2
+		//put(1, 3); // AB 3
+
+		//put(2, 1); // AV 1
+		put(2, 3); // AV 3
+		//put(2, 4); // AV 4
+	}};
 	
 	public WowBot() {
 		rand = new Random();
@@ -84,7 +116,7 @@ public class WowBot {
 	}
 	
 	// Start BOT
-	void startBot(String bgInput, String factionInput) {
+	void startBot(String bgInputArg, String factionInputArg) {
 		// 2s thread sleep delay
 		try {
 			Thread.sleep(2000);
@@ -92,14 +124,10 @@ public class WowBot {
 			e.printStackTrace();
 		}
 		
-		bgInput = "ra"; // Both random BGs and arenas
-		//bgInput = "r"; // Random BGs
-		//bgInput = "a"; // Random arenas
-		factionInput = "ally";
-		boolean isLowLevel = false;
-		int bgCount = 0; // Keep track of how many BGs / arenas that have been played
-		int bgCountMax = 10; // Max amount of bgCount before switching to BG / arena
-		boolean isArena = false; // Start with BG
+		if (!bgInputArg.equals(""))
+			bgInput = bgInputArg;
+		//if (!factionInputArg.equals(""))
+			//factionInput = factionInputArg;
 		
 		while (true) {
 			System.out.println("Args: " + bgInput + ", " + factionInput);
@@ -107,15 +135,15 @@ public class WowBot {
 			switch(bgInput) {
 			case "0":
 				System.out.println("Starting WSG bot! isAlly: " + isAlly);
-				startBgBot(0, 1700, isAlly, isLowLevel); // WSG
+				startBgBot(0, WSGTIMER, isAlly, isLowLevel); // WSG
 				break;
 			case "1":
 				System.out.println("Starting AB bot! isAlly: " + isAlly);
-				startBgBot(1, 700, isAlly, isLowLevel); // AB
+				startBgBot(1, ABTIMER, isAlly, isLowLevel); // AB
 				break;
 			case "2":
 				System.out.println("Starting AV bot! isAlly: " + isAlly);
-				startBgBot(2, 2000, isAlly, isLowLevel); // AV
+				startBgBot(2, AVTIMER, isAlly, isLowLevel); // AV
 				break;
 			case "ra":
 				if (bgCount < bgCountMax && isArena) {
@@ -182,6 +210,8 @@ public class WowBot {
 
 		if (arenaId == 100) // Hard coded, 100 means random arena
 			arenaId = rand.nextInt(3);
+
+		System.out.println("Playing arena: " + arenaId);
 		
 		if (arenaId == 2) // Extend bgTimer slightly for 5v5
 			bgTimer += 50;
@@ -282,14 +312,19 @@ public class WowBot {
 			}
 
 			r.delay(1000);
-			// Use R spell
 			if (timeInBg < maxActionTime) {
+				// Use R spell
 				r.keyPress(KeyEvent.VK_R);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_R);
 				r.delay(100);
+				// Use 2
+				r.delay(400);
+				r.keyPress(KeyEvent.VK_2);
+				r.delay(140);
+				r.keyRelease(KeyEvent.VK_2);
+				r.delay(440);
 				// Use shift-w
-				r.delay(980);
 				r.keyPress(KeyEvent.VK_SHIFT);
 				r.delay(35);
 				r.keyPress(KeyEvent.VK_W);
@@ -319,26 +354,49 @@ public class WowBot {
 		// Handle random BG
 		if (bg == 100) // Hard coded, 100 means random arena
 			bg = rand.nextInt(3);
+		System.out.println("Playing BG: " + bg);
 		// Set correct bgTimer
 		if (bg == 0)
-			bgTimer = 1700;
+			bgTimer = WSGTIMER;
 		else if (bg == 1)
-			bgTimer = 700;
+			bgTimer = ABTIMER;
 		else
-			bgTimer = 2000;
+			bgTimer = AVTIMER;
 
 		r.delay(1000);
 		if (bg == 0)
-			//r.mouseMove(bg1.x, bg1.y); // WSG 1
-			r.mouseMove(bg2.x, bg2.y); // WSG 2
+			switch ((int)bgOrderMap.get(bg)) {
+				case 1:
+					r.mouseMove(bg1.x, bg1.y); // WSG 1
+					break;
+				case 2: default:
+					r.mouseMove(bg2.x, bg2.y); // WSG 2
+					break;
+			}
 		else if (bg == 1)
-			//r.mouseMove(bg1.x, bg1.y); // AB 1
-			//r.mouseMove(bg2.x, bg2.y); // AB 2
-			r.mouseMove(bg3.x, bg3.y); // AB 3
+			switch ((int)bgOrderMap.get(bg)) {
+				case 1:
+					r.mouseMove(bg1.x, bg1.y); // AB 1
+					break;
+				case 2:
+					r.mouseMove(bg2.x, bg2.y); // AB 2
+					break;
+				case 3: default:
+					r.mouseMove(bg3.x, bg3.y); // AB 3
+					break;
+			}
 		else
-			//r.mouseMove(bg1.x, bg1.y); // AV 1
-			//r.mouseMove(bg3.x, bg3.y); // AV 3
-			r.mouseMove(bg4.x, bg4.y); // AV 4
+			switch ((int)bgOrderMap.get(bg)) {
+				case 1:
+					r.mouseMove(bg1.x, bg1.y); // AV 1
+					break;
+				case 3:
+					r.mouseMove(bg3.x, bg3.y); // AV 3
+					break;
+				case 4: default:
+					r.mouseMove(bg4.x, bg4.y); // AV 4
+					break;
+			}
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
@@ -356,7 +414,10 @@ public class WowBot {
 		r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 
 		r.delay(1000);
-		r.mouseMove(queueJoin.x, queueJoin.y); // Join queue
+		if (isGroup)
+			r.mouseMove(queueJoin.x-120, queueJoin.y); // Join group queue
+		else
+			r.mouseMove(queueJoin.x, queueJoin.y); // Join queue
 		// Click
 		r.delay(500);
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
@@ -386,6 +447,7 @@ public class WowBot {
 			r.keyRelease(KeyEvent.VK_W);
 			r.delay(1000);
 			r.keyPress(KeyEvent.VK_A);
+			// Turn slightly in WSG beginning
 			if (isAlly)
 				r.delay(495); // Ally
 			else
@@ -465,10 +527,16 @@ public class WowBot {
 					r.keyRelease(KeyEvent.VK_A);
 					// 50 % chance of turning some more
 					if (rand.nextInt(2) == 0) {
-						r.delay(200);
+						r.delay(100);
 						r.keyPress(KeyEvent.VK_A);
 						r.delay(200);
 						r.keyRelease(KeyEvent.VK_A);
+					} else {
+						// Else use 2
+						r.delay(100);
+						r.keyPress(KeyEvent.VK_2);
+						r.delay(100);
+						r.keyRelease(KeyEvent.VK_2);
 					}
 				}
 				else {
@@ -478,10 +546,16 @@ public class WowBot {
 					r.keyRelease(KeyEvent.VK_D);
 					// 50 % chance of turning some more
 					if (rand.nextInt(2) == 0) {
-						r.delay(200);
+						r.delay(100);
 						r.keyPress(KeyEvent.VK_D);
 						r.delay(200);
 						r.keyRelease(KeyEvent.VK_D);
+					} else {
+						// Else use 4
+						r.delay(100);
+						r.keyPress(KeyEvent.VK_4);
+						r.delay(100);
+						r.keyRelease(KeyEvent.VK_4);
 					}
 				}
 			}
