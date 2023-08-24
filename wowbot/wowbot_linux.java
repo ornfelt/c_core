@@ -60,19 +60,19 @@ public class wowbot {
 	
 	// Timers
 	private static final int WSGTIMER = 1900;
-	private static final int ABTIMER = 1700;
+	private static final int ABTIMER = 1600;
 	private static final int AVTIMER = 2300;
 	
 	// Queue settings
 	private static boolean isArena = false; // Start with BG when random
-	private static boolean isGroup = true; // If group queue (BG only)
+	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "horde";
+	private static String factionInput = "ally";
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
 		put(0, 1); // WSG 1
