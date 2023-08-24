@@ -61,11 +61,11 @@ public class WowBot {
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
-	private static final int AVTIMER = 2300;
+	private static final int AVTIMER = 2500;
 	
 	// Queue settings
 	private static boolean isArena = false; // Start with BG when random
-	private static boolean isGroup = true; // If group queue (BG only)
+	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
