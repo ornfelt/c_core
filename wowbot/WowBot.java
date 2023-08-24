@@ -43,20 +43,6 @@ public class WowBot {
 	LocalDateTime now;
 
 	// Configuration
-	//private MousePos arena2v2 = new MousePos(240, 320);
-	//private MousePos arena3v3 = new MousePos(240, 335);
-	//private MousePos arena5v5 = new MousePos(240, 350);
-	//private MousePos queueJoin = new MousePos(250, 530);
-	//private MousePos queueAccept = new MousePos(670, 210);
-	//private MousePos bgPress = new MousePos(200, 550);
-	//private MousePos bg1 = new MousePos(200, 235);
-	//private MousePos bg2 = new MousePos(200, 250);
-	//private MousePos bg3 = new MousePos(200, 260);
-	//private MousePos bg4 = new MousePos(200, 270);
-	//private MousePos lowLevelWsg = new MousePos(200, 215);
-	//private MousePos lowLevelAb = new MousePos(200, 235);
-	//private MousePos lowLevelAv = new MousePos(200, 250);
-	//private MousePos acceptRess = new MousePos(670, 210);
 	private MousePos arena2v2 = new MousePos(180, 345);
 	private MousePos arena3v3 = new MousePos(180, 360);
 	private MousePos arena5v5 = new MousePos(180, 375);
@@ -74,7 +60,7 @@ public class WowBot {
 
 	// Timers
 	private static final int WSGTIMER = 1900;
-	private static final int ABTIMER = 1700;
+	private static final int ABTIMER = 1600;
 	private static final int AVTIMER = 2300;
 	
 	// Queue settings
