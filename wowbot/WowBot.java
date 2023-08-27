@@ -61,10 +61,10 @@ public class WowBot {
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
-	private static final int AVTIMER = 2750;
+	private static final int AVTIMER = 2700;
 	
 	// Queue settings
-	private static boolean isArena = false; // Start with BG when random
+	private static boolean isArena = true; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -470,7 +470,7 @@ public class WowBot {
 		}
 		
 		// Random walking and some spell casts
-		for (int i = 0; i < 80 && timeInBg < bgTimer; i++) {
+		for (int i = 0; i < 100 && timeInBg < bgTimer; i++) {
 			r.delay(2000);
 			r.keyPress(KeyEvent.VK_W);
 			r.delay(100);
@@ -487,7 +487,11 @@ public class WowBot {
 			r.delay(60);
 			r.keyRelease(KeyEvent.VK_ALT);
 			
-			r.delay(9500);
+			r.delay(9000);
+			r.keyPress(KeyEvent.VK_T);
+			r.delay(100);
+			r.keyRelease(KeyEvent.VK_T);
+			r.delay(400);
 			// 20 % chance of jumping, else use spell (scroll down)
 			//if (rand.nextInt(10) == 0) // 10 % chance
 			if (rand.nextInt(4) == 0) {
@@ -560,8 +564,16 @@ public class WowBot {
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				// Try clicking a bit further down as well since
+				// release button can be moved down if bot 
+				// ressed player but it expired before getting accepted
+				r.delay(500);
+				r.mouseMove(acceptRess.x, acceptRess.y+30);
+				r.delay(500);
+				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 				// Wait 30 sec
-				r.delay(14000);
+				r.delay(13000);
 				r.keyPress(KeyEvent.VK_W);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_W);
