@@ -57,14 +57,14 @@ public class wowbot {
 	private MousePos lowLevelAb = new MousePos(240, 290);
 	private MousePos lowLevelAv = new MousePos(240, 308);
 	private MousePos acceptRess = new MousePos(900, 265);
-	
+
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
-	private static final int AVTIMER = 2750;
+	private static final int AVTIMER = 3000;
 	
 	// Queue settings
-	private static boolean isArena = false; // Start with BG when random
+	private static boolean isArena = true; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -75,11 +75,11 @@ public class wowbot {
 	private static String factionInput = "horde";
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		put(0, 1); // WSG 1
-		//put(0, 2); // WSG 2
+		//put(0, 1); // WSG 1
+		put(0, 2); // WSG 2
 
-		//put(1, 1); // AB 1
-		put(1, 2); // AB 2
+		put(1, 1); // AB 1
+		//put(1, 2); // AB 2
 		//put(1, 3); // AB 3
 
 		//put(2, 1); // AV 1
@@ -571,8 +571,16 @@ public class wowbot {
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				// Try clicking a bit further down as well since
+				// release button can be moved down if bot 
+				// ressed player but it expired before getting accepted
+				r.delay(500);
+				r.mouseMove(acceptRess.x, acceptRess.y+30);
+				r.delay(500);
+				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 				// Wait 30 sec
-				r.delay(14000);
+				r.delay(13000);
 				r.keyPress(KeyEvent.VK_W);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_W);
