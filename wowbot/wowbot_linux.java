@@ -61,7 +61,7 @@ public class wowbot {
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
-	private static final int AVTIMER = 3000;
+	private static final int AVTIMER = 2700;
 	
 	// Queue settings
 	private static boolean isArena = true; // Start with BG when random
@@ -481,7 +481,7 @@ public class wowbot {
 		}
 		
 		// Random walking and some spell casts
-		for (int i = 0; i < 80 && timeInBg < bgTimer; i++) {
+		for (int i = 0; i < 100 && timeInBg < bgTimer; i++) {
 			r.delay(2000);
 			r.keyPress(KeyEvent.VK_W);
 			r.delay(100);
@@ -498,7 +498,11 @@ public class wowbot {
 			r.delay(60);
 			r.keyRelease(KeyEvent.VK_ALT);
 			
-			r.delay(9500);
+			r.delay(9000);
+			r.keyPress(KeyEvent.VK_T);
+			r.delay(100);
+			r.keyRelease(KeyEvent.VK_T);
+			r.delay(400);
 			// 20 % chance of jumping, else use spell (scroll down)
 			//if (rand.nextInt(10) == 0) // 10 % chance
 			if (rand.nextInt(4) == 0) {
