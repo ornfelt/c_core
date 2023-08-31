@@ -62,6 +62,10 @@ public class wowbot {
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
 	private static final int AVTIMER = 2700;
+	private static final int WSGTURNTIMERALLY = 500;
+	private static final int WSGTURNTIMERHORDE = 450;
+	private static final int AVTURNTIMERALLY = 130;
+	private static final int AVTURNTIMERHORDE = 70;
 	
 	// Queue settings
 	private static boolean isArena = false; // Start with BG when random
@@ -175,12 +179,11 @@ public class wowbot {
 		r.delay(1000);
 		// Teleport to arena NPC
 		sendKey(KeyEvent.VK_ENTER);
-		r.delay(100);
+		r.delay(200);
 		if (isAlly)
 			sendKeys(".go creature 68938"); // select guid from creature where id1=19911; (id from arena npc from wowhead)
 		else
 			sendKeys(".go creature 4762"); // select guid from creature where id1=19912; (id from arena npc from wowhead)
-		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
 		r.delay(5000);
@@ -459,9 +462,9 @@ public class wowbot {
 
 			// Turn slightly in WSG beginning
 			if (isAlly)
-				r.delay(500); // Ally
+				r.delay(WSGTURNTIMERALLY); // Ally
 			else
-				r.delay(450); // Horde
+				r.delay(WSGTURNTIMERHORDE); // Horde
 			r.keyRelease(KeyEvent.VK_A);
 			r.delay(500);
 			r.keyPress(KeyEvent.VK_W);
@@ -485,9 +488,9 @@ public class wowbot {
 					r.delay(100);
 					r.keyPress(KeyEvent.VK_D);
 					if (isAlly)
-						r.delay(130);
+						r.delay(AVTURNTIMERALLY);
 					else
-						r.delay(70);
+						r.delay(AVTURNTIMERHORDE);
 					r.keyRelease(KeyEvent.VK_D);
 				}
 			}
