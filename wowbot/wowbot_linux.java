@@ -72,14 +72,14 @@ public class wowbot {
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "horde";
+	private static String factionInput = "ally";
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		//put(0, 1); // WSG 1
-		put(0, 2); // WSG 2
+		put(0, 1); // WSG 1
+		//put(0, 2); // WSG 2
 
-		put(1, 1); // AB 1
-		//put(1, 2); // AB 2
+		//put(1, 1); // AB 1
+		put(1, 2); // AB 2
 		//put(1, 3); // AB 3
 
 		//put(2, 1); // AV 1
