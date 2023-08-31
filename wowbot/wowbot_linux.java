@@ -350,6 +350,7 @@ public class wowbot {
 		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
+		r.delay(5000);
 		// Open PVP window
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
