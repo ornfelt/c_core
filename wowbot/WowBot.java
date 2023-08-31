@@ -62,9 +62,13 @@ public class WowBot {
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
 	private static final int AVTIMER = 2700;
+	private static final int WSGTURNTIMERALLY = 495;
+	private static final int WSGTURNTIMERHORDE = 455;
+	private static final int AVTURNTIMERALLY = 150;
+	private static final int AVTURNTIMERHORDE = 80;
 	
 	// Queue settings
-	private static boolean isArena = true; // Start with BG when random
+	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -72,7 +76,7 @@ public class WowBot {
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "horde";
+	private static String factionInput = "ally";
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
 		put(0, 1); // WSG 1
@@ -196,7 +200,7 @@ public class WowBot {
 
 		if (arenaId == 100) // Hard coded, 100 means random arena
 			arenaId = rand.nextInt(3);
-
+		
 		System.out.println("Playing arena: " + arenaId);
 		
 		if (arenaId == 2) // Extend bgTimer slightly for 5v5
@@ -328,6 +332,18 @@ public class WowBot {
 	
 	void startBgBot(int bg, int bgTimer, boolean isAlly, boolean isLowLevel) {
 		int timeInBg = 0;
+
+		// Teleport to some place fun
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(100);
+		if (isAlly)
+			sendKeys(".tele duskwood");
+		else
+			sendKeys(".tele mulgore");
+		r.delay(100);
+		sendKey(KeyEvent.VK_ENTER);
+
+		r.delay(5000);
 		// Open PVP window
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
@@ -433,11 +449,12 @@ public class WowBot {
 			r.keyRelease(KeyEvent.VK_W);
 			r.delay(1000);
 			r.keyPress(KeyEvent.VK_A);
+
 			// Turn slightly in WSG beginning
 			if (isAlly)
-				r.delay(495); // Ally
+				r.delay(WSGTURNTIMERALLY); // Ally
 			else
-				r.delay(455); // Horde
+				r.delay(WSGTURNTIMERHORDE); // Horde
 			r.keyRelease(KeyEvent.VK_A);
 			r.delay(500);
 			r.keyPress(KeyEvent.VK_W);
@@ -461,9 +478,9 @@ public class WowBot {
 					r.delay(100);
 					r.keyPress(KeyEvent.VK_D);
 					if (isAlly)
-						r.delay(150);
+						r.delay(AVTURNTIMERALLY);
 					else
-						r.delay(80);
+						r.delay(AVTURNTIMERHORDE);
 					r.keyRelease(KeyEvent.VK_D);
 				}
 			}
@@ -568,12 +585,18 @@ public class WowBot {
 				// release button can be moved down if bot 
 				// ressed player but it expired before getting accepted
 				r.delay(500);
-				r.mouseMove(acceptRess.x, acceptRess.y+30);
+				r.mouseMove(acceptRess.x, acceptRess.y+50);
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				r.delay(500);
+				r.mouseMove(acceptRess.x, acceptRess.y+60);
+				r.delay(500);
+				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
 				// Wait 30 sec
-				r.delay(13000);
+				r.delay(12000);
 				r.keyPress(KeyEvent.VK_W);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_W);
