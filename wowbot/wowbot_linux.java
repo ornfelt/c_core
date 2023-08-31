@@ -64,7 +64,7 @@ public class wowbot {
 	private static final int AVTIMER = 2700;
 	
 	// Queue settings
-	private static boolean isArena = true; // Start with BG when random
+	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -175,11 +175,12 @@ public class wowbot {
 		r.delay(1000);
 		// Teleport to arena NPC
 		sendKey(KeyEvent.VK_ENTER);
-		r.delay(200);
+		r.delay(100);
 		if (isAlly)
 			sendKeys(".go creature 68938"); // select guid from creature where id1=19911; (id from arena npc from wowhead)
 		else
 			sendKeys(".go creature 4762"); // select guid from creature where id1=19912; (id from arena npc from wowhead)
+		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
 		r.delay(5000);
@@ -338,6 +339,17 @@ public class wowbot {
 	
 	void startBgBot(int bg, int bgTimer, boolean isAlly, boolean isLowLevel) {
 		int timeInBg = 0;
+
+		// Teleport to some place fun
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(100);
+		if (isAlly)
+			sendKeys(".tele duskwood");
+		else
+			sendKeys(".tele mulgore");
+		r.delay(100);
+		sendKey(KeyEvent.VK_ENTER);
+
 		// Open PVP window
 		sendKey(KeyEvent.VK_H);
 		r.delay(1000);
@@ -579,12 +591,18 @@ public class wowbot {
 				// release button can be moved down if bot 
 				// ressed player but it expired before getting accepted
 				r.delay(500);
-				r.mouseMove(acceptRess.x, acceptRess.y+30);
+				r.mouseMove(acceptRess.x, acceptRess.y+50);
 				r.delay(500);
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+				r.delay(500);
+				r.mouseMove(acceptRess.x, acceptRess.y+60);
+				r.delay(500);
+				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+
 				// Wait 30 sec
-				r.delay(13000);
+				r.delay(12000);
 				r.keyPress(KeyEvent.VK_W);
 				r.delay(100);
 				r.keyRelease(KeyEvent.VK_W);
