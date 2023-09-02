@@ -54,37 +54,43 @@ public class wowbot {
 	private MousePos bg3 = new MousePos(240, 330);
 	private MousePos bg4 = new MousePos(240, 340);
 	private MousePos lowLevelWsg = new MousePos(240, 270);
-	private MousePos lowLevelAb = new MousePos(240, 290);
-	private MousePos lowLevelAv = new MousePos(240, 308);
 	private MousePos acceptRess = new MousePos(900, 265);
 
 	// Timers
 	private static final int WSGTIMER = 1900;
 	private static final int ABTIMER = 1600;
 	private static final int AVTIMER = 2700;
+	private static final int WSGTURNTIMERALLY = 500;
+	private static final int WSGTURNTIMERHORDE = 450;
+	private static final int AVTURNTIMERALLY = 130;
+	private static final int AVTURNTIMERHORDE = 70;
 	
 	// Queue settings
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
+    private static boolean eyeCTA = true; // If eye of the storm is call to arms 
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
 	private static String factionInput = "ally";
+    private static final String bgTeleSpotHorde = "silvermooncity";
+    private static final String bgTeleSpotAlly = "exodar";
+
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		put(0, 1); // WSG 1
-		//put(0, 2); // WSG 2
+		//put(0, 1); // WSG 1
+		put(0, 2); // WSG 2
 
 		//put(1, 1); // AB 1
-		put(1, 2); // AB 2
-		//put(1, 3); // AB 3
+		//put(1, 2); // AB 2
+		put(1, 3); // AB 3
 
 		//put(2, 1); // AV 1
-		put(2, 3); // AV 3
-		//put(2, 4); // AV 4
+		//put(2, 3); // AV 3
+		put(2, 4); // AV 4
 	}};
 	
 	public wowbot() {
@@ -103,9 +109,9 @@ public class wowbot {
 	
 	// Start BOT
 	void startBot(String bgInputArg, String factionInputArg) {
-		// 2s thread sleep delay
+		// 5s thread sleep delay
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -175,12 +181,11 @@ public class wowbot {
 		r.delay(1000);
 		// Teleport to arena NPC
 		sendKey(KeyEvent.VK_ENTER);
-		r.delay(100);
+		r.delay(200);
 		if (isAlly)
 			sendKeys(".go creature 68938"); // select guid from creature where id1=19911; (id from arena npc from wowhead)
 		else
 			sendKeys(".go creature 4762"); // select guid from creature where id1=19912; (id from arena npc from wowhead)
-		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
 		r.delay(5000);
@@ -344,9 +349,9 @@ public class wowbot {
 		sendKey(KeyEvent.VK_ENTER);
 		r.delay(100);
 		if (isAlly)
-			sendKeys(".tele duskwood");
+			sendKeys(".tele " + bgTeleSpotAlly);
 		else
-			sendKeys(".tele mulgore");
+			sendKeys(".tele " + bgTeleSpotHorde);
 		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
@@ -409,12 +414,21 @@ public class wowbot {
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
-			if (bg == 0)
-				r.mouseMove(lowLevelWsg.x, lowLevelWsg.y); // WSG
-			else if (bg == 1)
-				r.mouseMove(lowLevelAb.x, lowLevelAb.y); // AB
-			else
-				r.mouseMove(lowLevelAv.x, lowLevelAv.y); // AV
+            if (eyeCTA) {
+                if (bg == 0)
+                    r.mouseMove(bg1.x, bg1.y); // WSG
+                else if (bg == 1)
+                    r.mouseMove(bg2.x, bg2.y); // AB
+                else
+                    r.mouseMove(bg3.x, bg3.y); // AV
+            } else {
+                if (bg == 0)
+                    r.mouseMove(lowLevelWsg.x, lowLevelWsg.y); // WSG
+                else if (bg == 1)
+                    r.mouseMove(bg1.x, bg1.y); // AB
+                else
+                    r.mouseMove(bg2.x, bg2.y); // AV
+            }
 		}
 
 		// Click
@@ -459,9 +473,9 @@ public class wowbot {
 
 			// Turn slightly in WSG beginning
 			if (isAlly)
-				r.delay(500); // Ally
+				r.delay(WSGTURNTIMERALLY); // Ally
 			else
-				r.delay(450); // Horde
+				r.delay(WSGTURNTIMERHORDE); // Horde
 			r.keyRelease(KeyEvent.VK_A);
 			r.delay(500);
 			r.keyPress(KeyEvent.VK_W);
@@ -485,9 +499,9 @@ public class wowbot {
 					r.delay(100);
 					r.keyPress(KeyEvent.VK_D);
 					if (isAlly)
-						r.delay(130);
+						r.delay(AVTURNTIMERALLY);
 					else
-						r.delay(70);
+						r.delay(AVTURNTIMERHORDE);
 					r.keyRelease(KeyEvent.VK_D);
 				}
 			}
@@ -630,6 +644,8 @@ public class wowbot {
 			r.delay(100);
 			//System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
+        if (bg == 2)
+            System.out.println("End of AV loop... timeInBg: " + timeInBg);
 		
 		// rand.nextInt(100) < 34
 	}
