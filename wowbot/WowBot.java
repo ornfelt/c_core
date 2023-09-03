@@ -54,8 +54,6 @@ public class WowBot {
 	private MousePos bg3 = new MousePos(140, 272);
 	private MousePos bg4 = new MousePos(140, 290);
 	private MousePos lowLevelWsg = new MousePos(140, 225);
-	private MousePos lowLevelAb = new MousePos(140, 245);
-	private MousePos lowLevelAv = new MousePos(140, 255);
 	private MousePos acceptRess = new MousePos(675, 225);
 
 	// Timers
@@ -71,24 +69,37 @@ public class WowBot {
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
+	private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
+    private static boolean avCTA = false; // If AV is Call To Arms
+    private static boolean abCTA = false; // If AB is Call To Arms
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "ally";
+	private static String factionInput = "horde";
+	private static final String bgTeleSpotHorde = "silvermooncity";
+    private static final String bgTeleSpotAlly = "exodar";
+
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		put(0, 1); // WSG 1
-		//put(0, 2); // WSG 2
-
-		//put(1, 1); // AB 1
-		put(1, 2); // AB 2
-		//put(1, 3); // AB 3
-
-		//put(2, 1); // AV 1
-		put(2, 3); // AV 3
-		//put(2, 4); // AV 4
+		if (otherCTA) {
+			put(0, 2); // WSG 2
+			put(1, 3); // AB 3
+			put(2, 4); // AV 4
+		} else if (avCTA) {
+			put(2, 1); // AV 1
+			put(0, 2); // WSG 2
+			put(1, 3); // AB 3
+		} else if (abCTA) {
+			put(1, 1); // AB 1
+			put(0, 2); // WSG 2
+			put(2, 3); // AV 3
+		} else {
+			put(0, 1); // WSG 1
+			put(1, 2); // AB 2
+			put(2, 3); // AV 3
+		}
 	}};
 	
 	public WowBot() {
@@ -107,9 +118,9 @@ public class WowBot {
 	
 	// Start BOT
 	void startBot(String bgInputArg, String factionInputArg) {
-		// 2s thread sleep delay
+		// 5s thread sleep delay
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -337,9 +348,9 @@ public class WowBot {
 		sendKey(KeyEvent.VK_ENTER);
 		r.delay(100);
 		if (isAlly)
-			sendKeys(".tele duskwood");
+			sendKeys(".tele " + bgTeleSpotAlly);
 		else
-			sendKeys(".tele mulgore");
+			sendKeys(".tele " + bgTeleSpotHorde);
 		r.delay(100);
 		sendKey(KeyEvent.VK_ENTER);
 
@@ -402,12 +413,21 @@ public class WowBot {
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
-			if (bg == 0)
-				r.mouseMove(lowLevelWsg.x, lowLevelWsg.y); // WSG
-			else if (bg == 1)
-				r.mouseMove(lowLevelAb.x, lowLevelAb.y); // AB
-			else
-				r.mouseMove(lowLevelAv.x, lowLevelAv.y); // AV
+			if (otherCTA) {
+                if (bg == 0)
+                    r.mouseMove(bg1.x, bg1.y); // WSG
+                else if (bg == 1)
+                    r.mouseMove(bg2.x, bg2.y); // AB
+                else
+                    r.mouseMove(bg3.x, bg3.y); // AV
+            } else {
+                if (bg == 0)
+                    r.mouseMove(lowLevelWsg.x, lowLevelWsg.y); // WSG
+                else if (bg == 1)
+                    r.mouseMove(bg1.x, bg1.y); // AB
+                else
+                    r.mouseMove(bg2.x, bg2.y); // AV
+            }
 		}
 
 		// Click
@@ -623,6 +643,8 @@ public class WowBot {
 			r.delay(100);
 			//System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
+		if (bg == 2)
+			System.out.println("End of AV loop... timeInBg: " + timeInBg);
 		
 		// rand.nextInt(100) < 34
 	}

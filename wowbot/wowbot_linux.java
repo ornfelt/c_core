@@ -69,7 +69,7 @@ public class wowbot {
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
-    private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
+	private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
     private static boolean avCTA = false; // If AV is Call To Arms
     private static boolean abCTA = false; // If AB is Call To Arms
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -78,7 +78,7 @@ public class wowbot {
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
 	private static String factionInput = "horde";
-    private static final String bgTeleSpotHorde = "silvermooncity";
+	private static final String bgTeleSpotHorde = "silvermooncity";
     private static final String bgTeleSpotAlly = "exodar";
 
 	// The order of the BGs might change depending on current Call to Arms
@@ -423,7 +423,7 @@ public class wowbot {
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
-            if (otherCTA) {
+			if (otherCTA) {
                 if (bg == 0)
                     r.mouseMove(bg1.x, bg1.y); // WSG
                 else if (bg == 1)
@@ -653,8 +653,8 @@ public class wowbot {
 			r.delay(100);
 			//System.out.println("End of loop... timeInBg: " + timeInBg + ", bgTimer: " + bgTimer);
 		}
-        if (bg == 2)
-            System.out.println("End of AV loop... timeInBg: " + timeInBg);
+		if (bg == 2)
+			System.out.println("End of AV loop... timeInBg: " + timeInBg);
 		
 		// rand.nextInt(100) < 34
 	}
