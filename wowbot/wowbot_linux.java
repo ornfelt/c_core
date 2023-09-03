@@ -71,7 +71,7 @@ public class wowbot {
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
 	private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
 	private static boolean avCTA = false; // If AV is Call To Arms
-    private static boolean abCTA = false; // If AB is Call To Arms
+	private static boolean abCTA = false; // If AB is Call To Arms
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
