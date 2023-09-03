@@ -69,7 +69,9 @@ public class wowbot {
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
-    private static boolean eyeCTA = true; // If eye of the storm is call to arms 
+    private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
+    private static boolean avCTA = false; // If AV is Call To Arms
+    private static boolean abCTA = false; // If AB is Call To Arms
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
@@ -81,15 +83,21 @@ public class wowbot {
 
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		if (eyeCTA) {
+		if (otherCTA) {
 			put(0, 2); // WSG 2
 			put(1, 3); // AB 3
 			put(2, 4); // AV 4
+		} else if (avCTA) {
+			put(2, 1); // AV 1
+			put(0, 2); // WSG 2
+			put(1, 3); // AB 3
+		} else if (abCTA) {
+			put(1, 1); // AB 1
+			put(0, 2); // WSG 2
+			put(2, 3); // AV 3
 		} else {
 			put(0, 1); // WSG 1
-			//put(1, 1); // AB 1
 			put(1, 2); // AB 2
-			//put(2, 1); // AV 1
 			put(2, 3); // AV 3
 		}
 	}};
@@ -415,7 +423,7 @@ public class wowbot {
 		
 		// USE THIS IF LOW LEVEL
 		if (isLowLevel) {
-            if (eyeCTA) {
+            if (otherCTA) {
                 if (bg == 0)
                     r.mouseMove(bg1.x, bg1.y); // WSG
                 else if (bg == 1)
