@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -69,7 +70,7 @@ public class wowbot {
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
-	private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
+	private static boolean otherCTA = false; // If other BG than WSG, AB, AV is call to arms 
 	private static boolean avCTA = false; // If AV is Call To Arms
 	private static boolean abCTA = false; // If AB is Call To Arms
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
@@ -114,7 +115,60 @@ public class wowbot {
 		StringSelection stringSelection = new StringSelection(myString);
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(stringSelection, null);
+		
+		// Calculate current call to arms
+		// select * from game_event where holiday in (283, 284, 285, 353, 400, 420);
+	    
+		long occurence = 60480;
+		long length = 6240;
+
+		// AV: 283
+        String startTime = "2010-05-07 18:00:00";
+		System.out.println("AV CTA: " + CheckCTA(startTime, occurence, length));
+		// WSG: 284
+        startTime = "2010-04-02 18:00:00";
+		System.out.println("WSG CTA: " + CheckCTA(startTime, occurence, length));
+		// AB: 285
+        startTime = "2010-04-23 18:00:00";
+		System.out.println("AB CTA: " + CheckCTA(startTime, occurence, length));
+		// EYE: 353
+        startTime = "2010-04-30 18:00:00";
+		System.out.println("EYE CTA: " + CheckCTA(startTime, occurence, length));
+		// Strand: 400
+		startTime = "2010-04-09 18:00:00";
+		System.out.println("Strand CTA: " + CheckCTA(startTime, occurence, length));
+		// Isle
+		startTime = "2010-04-16 18:00:00";
+		System.out.println("Isle CTA: " + CheckCTA(startTime, occurence, length));
+		
+		// Set faction based on race
+		// Set lowlevel based on level
 	}
+	
+	boolean CheckCTA(String startTime, long occurence, long length) {
+		long currenttime = System.currentTimeMillis() / 1000;
+		// Creating a new object of the class Date  
+	    Date currentDate = new Date(currenttime * 1000);
+	    System.out.println("currenttime: " + currenttime);
+	    System.out.println("current date: " + currentDate);
+		int MINUTE = 60;
+
+		// Define a date format to parse the start time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            // Parse the start time string into a Date object
+            Date startTimeDate = dateFormat.parse(startTime);
+            // Convert the Date object to seconds since the epoch
+            long start = startTimeDate.getTime() / 1000;
+			System.out.println("start: " + start);
+            return (((currenttime - start) % (occurence * MINUTE)) < (length * MINUTE));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+	}
+
 	
 	// Start BOT
 	void startBot(String bgInputArg, String factionInputArg) {
