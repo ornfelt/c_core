@@ -215,6 +215,7 @@ public class wowbot {
 				tryLogin();
 				// Execute SQL again
 				resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+				resultSet.next();
             }
 
             //while (resultSet.next()) {
