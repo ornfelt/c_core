@@ -160,6 +160,7 @@ public class wowbot {
 		System.out.println("Isle CTA: " + isleCTA);
 		
 		otherCTA = (eyeCTA || strandCTA || isleCTA);
+		System.out.println("abCTA: " + abCTA + ", avCTA: " + avCTA + ", otherCTA: " + otherCTA);
 	}
 	
 	boolean checkCTA(String startTime, long occurence, long length) {
@@ -193,6 +194,7 @@ public class wowbot {
 	// For mariadb: https://jar-download.com/artifacts/org.mariadb.jdbc
 	void setPlayerSettings() {
 		Connection connection = null;
+		System.out.println("Retrieving player settings...");
         try {
             //Class.forName("com.mysql.cj.jdbc.Driver");
             Class.forName("org.mariadb.jdbc.Driver");
@@ -204,23 +206,26 @@ public class wowbot {
             int accountId = 1;
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
-            String race;
-            int level;
+            String race = "";
+            int level = 0;
+
             // Check if player isn't logged in
             if (!resultSet.next()) {
-                System.out.println("Player not logged in. Trying to log in...");
-                tryLogin();
-                // Execute SQL again
+				System.out.println("Player not logged in. Trying to log in...");
+				tryLogin();
+				// Execute SQL again
 				resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
             }
 
-            while (resultSet.next()) {
-                race = resultSet.getString("race").trim();
-                level = resultSet.getInt("level");
-                System.out.println("\nrace : " + race + " level : " + level);
-                isAlly = !hordeRaces.contains(Integer.parseInt(race));
-                isLowLevel = level < 70;
-            }
+            //while (resultSet.next()) {
+            //}
+
+			race = resultSet.getString("race").trim();
+			level = resultSet.getInt("level");
+			isAlly = !hordeRaces.contains(Integer.parseInt(race));
+			isLowLevel = level < 70;
+			System.out.println("\nrace: " + race + ", level: " + level);
+			System.out.println("isAlly: " + isAlly + ", isLowLevel: " + isLowLevel);
 
             resultSet.close();
             statement.close();
@@ -260,6 +265,7 @@ public class wowbot {
 		
 		while (true) {
 			// Check game and player status
+			threadSleep(3000);
 			setCTA();
 			setPlayerSettings();
 			// 5s thread sleep delay
@@ -804,14 +810,11 @@ public class wowbot {
 	
 	// Execute specific key
 	void sendKey(int key) {
-		//r.delay(20);
-		r.delay(70);
+		r.delay(100);
 		r.keyPress(key);
-		//r.delay(20);
-		r.delay(70);
+		r.delay(100);
 		r.keyRelease(key);
-		//r.delay(20);
-		r.delay(70);
+		r.delay(100);
 	}
 	
 	// Execute the characters in string key 
@@ -847,14 +850,11 @@ public class wowbot {
 					throw new RuntimeException(
 						"Key code not found for character '" + c + "'");
 				}
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 				r.keyPress(keyCode);
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 				r.keyRelease(keyCode);
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 	    	}
 	    }
 	}
