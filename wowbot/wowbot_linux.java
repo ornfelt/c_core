@@ -243,6 +243,15 @@ public class wowbot {
 		// Press enter to get rid of DC message
 		sendKey(KeyEvent.VK_ENTER);
 		r.delay(1000);
+		// Ctrl-a to mark all text 
+		r.keyPress(KeyEvent.VK_CONTROL);
+		r.delay(60);
+		r.keyPress(KeyEvent.VK_A);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_CONTROL);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_A);
+		r.delay(500);
 		sendKeys("acore");
 		r.delay(200);
 		sendKey(KeyEvent.VK_TAB);
