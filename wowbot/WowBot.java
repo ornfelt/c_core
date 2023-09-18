@@ -21,12 +21,17 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
+import java.sql.*;
 
 class MousePos {
 	  final int x;
@@ -43,18 +48,20 @@ public class WowBot {
 	LocalDateTime now;
 
 	// Configuration
-	private MousePos arena2v2 = new MousePos(180, 345);
-	private MousePos arena3v3 = new MousePos(180, 360);
-	private MousePos arena5v5 = new MousePos(180, 375);
-	private MousePos queueJoin = new MousePos(190, 565);
-	private MousePos queueAccept = new MousePos(610, 225);
-	private MousePos bgPress = new MousePos(140, 585);
-	private MousePos bg1 = new MousePos(140, 245);
-	private MousePos bg2 = new MousePos(140, 255);
-	private MousePos bg3 = new MousePos(140, 272);
-	private MousePos bg4 = new MousePos(140, 290);
-	private MousePos lowLevelWsg = new MousePos(140, 225);
-	private MousePos acceptRess = new MousePos(675, 225);
+	private MousePos arena2v2 = new MousePos(240, 320);
+	private MousePos arena3v3 = new MousePos(240, 335);
+	private MousePos arena5v5 = new MousePos(240, 350);
+	private MousePos queueJoin = new MousePos(290, 505);
+	private MousePos queueAccept = new MousePos(710, 220);
+	private MousePos bgPress = new MousePos(200, 530);
+	private MousePos bg1 = new MousePos(240, 240);
+	private MousePos bg2 = new MousePos(240, 250);
+	private MousePos bg3 = new MousePos(240, 260);
+	private MousePos bg4 = new MousePos(240, 280);
+	private MousePos lowLevelWsg = new MousePos(240, 220);
+	private MousePos lowLevelAb = new MousePos(240, 240);
+	private MousePos lowLevelAv = new MousePos(240, 250);
+	private MousePos acceptRess = new MousePos(730, 220);
 
 	// Timers
 	private static final int WSGTIMER = 1900;
@@ -69,18 +76,20 @@ public class WowBot {
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
-	private static boolean otherCTA = true; // If other BG than WSG, AB, AV is call to arms 
+	private static boolean otherCTA = false; // If other BG than WSG, AB, AV is call to arms 
 	private static boolean avCTA = false; // If AV is Call To Arms
 	private static boolean abCTA = false; // If AB is Call To Arms
+	private static boolean isAlly = false; // Faction
 	private static int bgCount = 0; // Keep track of how many BGs / arenas that have been played
 	private static int bgCountMax = 6; // Max amount of bgCount before switching to BG / arena
 	private static String bgInput = "ra"; // Both random BGs and arena
 	//private static String bgInput = "r"; // Random BGs
 	//private static String bgInput = "a"; // Random arenas
-	private static String factionInput = "horde";
 	private static final String bgTeleSpotHorde = "silvermooncity";
 	private static final String bgTeleSpotAlly = "exodar";
-
+	// Horde races
+	private static List<Integer> hordeRaces = Arrays.asList(2, 5, 6, 8, 10 );
+	
 	// The order of the BGs might change depending on current Call to Arms
 	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
 		if (otherCTA) {
@@ -116,23 +125,167 @@ public class WowBot {
 		clipboard.setContents(stringSelection, null);
 	}
 	
+	void setCTA() {
+		// Calculate current call to arms
+		// select * from game_event where holiday in (283, 284, 285, 353, 400, 420);
+		// The start dates could be fetched through SQL if needed...
+		long occurence = 60480;
+		long length = 6240;
+
+		// AV: 283
+        avCTA = checkCTA("2010-05-07 18:00:00", occurence, length);
+		System.out.println("AV CTA: " + avCTA);
+
+		// WSG: 284
+        boolean wsgCTA = checkCTA("2010-04-02 18:00:00", occurence, length);
+		System.out.println("WSG CTA: " + wsgCTA);
+
+		// AB: 285
+		abCTA = checkCTA("2010-04-23 18:00:00", occurence, length);
+		System.out.println("AB CTA: " + abCTA);
+
+		// EYE: 353
+        boolean eyeCTA = checkCTA("2010-04-30 18:00:00", occurence, length);
+		System.out.println("EYE CTA: " + eyeCTA);
+
+		// Strand: 400
+		boolean strandCTA = checkCTA("2010-04-09 18:00:00", occurence, length);
+		System.out.println("Strand CTA: " + strandCTA);
+
+		// Isle: 420
+		boolean isleCTA = checkCTA("2010-04-16 18:00:00", occurence, length);
+		System.out.println("Isle CTA: " + isleCTA);
+		
+		otherCTA = (eyeCTA || strandCTA || isleCTA);
+		System.out.println("abCTA: " + abCTA + ", avCTA: " + avCTA + ", otherCTA: " + otherCTA);
+	}
+	
+	boolean checkCTA(String startTime, long occurence, long length) {
+		long currenttime = System.currentTimeMillis() / 1000;
+		// Creating a new object of the class Date  
+	    //Date currentDate = new Date(currenttime * 1000);
+	    //System.out.println("currenttime: " + currenttime);
+	    //System.out.println("current date: " + currentDate);
+		int MINUTE = 60;
+
+		// Define a date format to parse the start time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            // Parse the start time string into a Date object
+            Date startTimeDate = dateFormat.parse(startTime);
+            // Convert the Date object to seconds since the epoch
+            long start = startTimeDate.getTime() / 1000;
+			//System.out.println("start: " + start);
+            return (((currenttime - start) % (occurence * MINUTE)) < (length * MINUTE));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+	}
+	
+	// To compile: javac -classpath ..\lib\mysql-connector-java-8.0.20.jar;. test.java
+	// To run: java -classpath ..\lib\mysql-connector-java-8.0.20.jar;. test
+	// Or with eclipse: project properties -> Java build path -> libraries -> classpath -> add external jar
+	// For mysql: https://dev.mysql.com/downloads/connector/j/
+	// For mariadb: https://jar-download.com/artifacts/org.mariadb.jdbc
+	void setPlayerSettings() {
+		Connection connection = null;
+		System.out.println("Retrieving player settings...");
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //Class.forName("org.mariadb.jdbc.Driver");
+            connection = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/acore_characters",
+                //"jdbc:mariadb://localhost:3306/acore_characters",
+                "acore", "acore");
+ 
+            int accountId = 2;
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+            String race = "";
+            int level = 0;
+
+            // Check if player isn't logged in
+            if (!resultSet.next()) {
+				System.out.println("Player not logged in. Trying to log in...");
+				tryLogin();
+				// Execute SQL again
+				resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+				// Try one more time
+				if (!resultSet.next()) {
+					System.out.println("Player still not logged in. Trying to log in once more...");
+					tryLogin();
+					// Execute SQL again
+					resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+					if (!resultSet.next())
+						System.exit(0);
+				}
+            }
+
+            //while (resultSet.next()) {
+            //}
+
+			race = resultSet.getString("race").trim();
+			level = resultSet.getInt("level");
+			isAlly = !hordeRaces.contains(Integer.parseInt(race));
+			isLowLevel = level < 70;
+			System.out.println("\nrace: " + race + ", level: " + level);
+			System.out.println("isAlly: " + isAlly + ", isLowLevel: " + isLowLevel);
+
+            resultSet.close();
+            statement.close();
+            connection.close();
+        }
+        catch (Exception exception) {
+            System.out.println(exception);
+        }
+	}
+	
+	// Try to login
+	void tryLogin() {
+		threadSleep(2000);
+		// Press enter to get rid of DC message
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(1000);
+		// Ctrl-a to mark all text 
+		r.keyPress(KeyEvent.VK_CONTROL);
+		r.delay(60);
+		r.keyPress(KeyEvent.VK_A);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_CONTROL);
+		r.delay(60);
+		r.keyRelease(KeyEvent.VK_A);
+		r.delay(500);
+		sendKeys("acore");
+		r.delay(200);
+		sendKey(KeyEvent.VK_TAB);
+		r.delay(200);
+		sendKeys("123");
+		r.delay(200);
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(5000);
+		sendKey(KeyEvent.VK_ENTER);
+		r.delay(5000);
+	}
+	
 	// Start BOT
 	void startBot(String bgInputArg, String factionInputArg) {
-		// 5s thread sleep delay
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 		if (!bgInputArg.equals(""))
 			bgInput = bgInputArg;
 		//if (!factionInputArg.equals(""))
 			//factionInput = factionInputArg;
+		//System.out.println("Args: " + bgInputArg + ", " + factionInputArg);
+		//boolean isAlly = factionInput.toLowerCase().equals("ally");
 		
 		while (true) {
-			System.out.println("Args: " + bgInput + ", " + factionInput);
-			boolean isAlly = factionInput.toLowerCase().equals("ally");
+			// Check game and player status
+			threadSleep(3000);
+			setCTA();
+			setPlayerSettings();
+			// 5s thread sleep delay
+			threadSleep(5000);
+			
 			switch(bgInput) {
 			case "0":
 				System.out.println("Starting WSG bot! isAlly: " + isAlly);
@@ -184,6 +337,7 @@ public class WowBot {
 		}
 	}
 
+	// Start Arena BOT
 	void startArenaBot(int arenaId, int bgTimer, boolean isAlly) {
 		int timeInBg = 0;
 		int maxActionTime = 45;
@@ -211,7 +365,7 @@ public class WowBot {
 
 		if (arenaId == 100) // Hard coded, 100 means random arena
 			arenaId = rand.nextInt(3);
-		
+
 		System.out.println("Playing arena: " + arenaId);
 		
 		if (arenaId == 2) // Extend bgTimer slightly for 5v5
@@ -341,6 +495,7 @@ public class WowBot {
 		}
 	}
 	
+	// Start Battleground BOT
 	void startBgBot(int bg, int bgTimer, boolean isAlly, boolean isLowLevel) {
 		int timeInBg = 0;
 
@@ -649,38 +804,25 @@ public class WowBot {
 		// rand.nextInt(100) < 34
 	}
 	
-    //enter the incoming String info, then press End and Enter
-    void enterInfo(String info){
-        sendKeys(info);
-		//sendKey(KeyEvent.VK_END);
-        sendEndKey();
-		sendKey(KeyEvent.VK_ENTER);
-    }
-    
-    //clean rest of the field by entering space a few times
-    void sendEndKey() {
-    	for (int i = 0; i < 5; i++) {
-			r.delay(35);
-			r.keyPress(KeyEvent.VK_SPACE);
-			r.delay(35);
-			r.keyRelease(KeyEvent.VK_SPACE);
-			r.delay(35);
-    	}
-    }
-	
-	//execute specific key
-	void sendKey(int key) {
-		//r.delay(20);
-		r.delay(70);
-		r.keyPress(key);
-		//r.delay(20);
-		r.delay(70);
-		r.keyRelease(key);
-		//r.delay(20);
-		r.delay(70);
+	// Thread.Sleep for x amount of time
+	void threadSleep(int sleepTime) {
+		try {
+			Thread.sleep(sleepTime);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	//execute the characters in string key 
+	// Execute specific key
+	void sendKey(int key) {
+		r.delay(100);
+		r.keyPress(key);
+		r.delay(100);
+		r.keyRelease(key);
+		r.delay(100);
+	}
+	
+	// Execute the characters in string key 
 	void sendKeys(String keys) {
 	    for (char c : keys.toCharArray()) {
 	    	if(c == 'Å') {
@@ -713,19 +855,16 @@ public class WowBot {
 					throw new RuntimeException(
 						"Key code not found for character '" + c + "'");
 				}
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 				r.keyPress(keyCode);
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 				r.keyRelease(keyCode);
-				//r.delay(20);
-				r.delay(60);
+				r.delay(100);
 	    	}
 	    }
 	}
 	
-	//press keys via altNumpad
+	// Press keys via altNumpad
 	public void keyPress(char characterKey){
 	    switch (characterKey){
 	        case '!': altNumpad("33"); break;
@@ -756,7 +895,7 @@ public class WowBot {
 	    }
 	}
 
-	//altNumpad for special characters
+	// altNumpad for special characters
 	private void altNumpad(int... numpadCodes){
 	    if (numpadCodes.length == 0) {
 	        return;
@@ -770,7 +909,7 @@ public class WowBot {
 	    r.keyRelease(KeyEvent.VK_ALT);
 	}
 
-	//altNumpad for special characters
+	// altNumpad for special characters
 	private void altNumpad(String numpadCodes){
 	    if (numpadCodes == null || !numpadCodes.matches("^\\d+$")){
 	        return;
@@ -787,7 +926,7 @@ public class WowBot {
 	    r.keyRelease(KeyEvent.VK_ALT);        
 	}
 
-	//get numpad keyevents
+	// Get numpad keyevents
 	private int getNumpad(char numberChar){
 	    switch (numberChar){
 	        case '0' : return KeyEvent.VK_NUMPAD0;
@@ -804,7 +943,7 @@ public class WowBot {
 	    }
 	}
 	
-	//click on the screen with Robot 
+	// Click on the screen with Robot 
 	void click(int x, int y) throws AWTException{
 		r.mouseMove(x, y);    
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
