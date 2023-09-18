@@ -121,11 +121,6 @@ public class wowbot {
 		StringSelection stringSelection = new StringSelection(myString);
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		clipboard.setContents(stringSelection, null);
-		
-		
-		// Set faction based on race
-		// Set lowlevel based on level
-		// If no race, level etc. Then client DC'd -> log in again...
 	}
 	
 	void setCTA() {
@@ -215,7 +210,15 @@ public class wowbot {
 				tryLogin();
 				// Execute SQL again
 				resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
-				resultSet.next();
+				// Try one more time
+				if (!resultSet.next()) {
+					System.out.println("Player still not logged in. Trying to log in once more...");
+					tryLogin();
+					// Execute SQL again
+					resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+					if (!resultSet.next())
+						System.exit(0);
+				}
             }
 
             //while (resultSet.next()) {
