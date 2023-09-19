@@ -7,10 +7,27 @@
 #include <regex>
 #include <assert.h>
 
-#define OUTLAND 1
-#define TRICKERER_SQL 1
+// Compile with: g++ -O2 -Wall dfs_wow.cpp -o dfs_wow
 
-// Compile with: g++ -O2 -Wall dfs.cpp o dfs
+// Forward declaration
+std::vector<std::string> read_lines_from_file(const std::string& filename);
+
+enum ContinentID {
+    EasternKingdoms = 0,
+    Kalimdor = 1,
+    Outland = 530,
+    Northrend = 571
+};
+
+// Settings and global vars
+#define TRICKERER_SQL 0 // Use Trickerer's Outland and Northrend SQL
+//ContinentID continent = EasternKingdoms;
+//ContinentID continent = Kalimdor;
+//ContinentID continent = Outland;
+ContinentID continent = Northrend;
+
+template<class C, typename T>
+bool contains(C&& c, T e) { return std::find(begin(c), end(c), e) != end(c); };
 
 std::vector<std::string> read_lines_from_file(const std::string& filename) {
     std::vector<std::string> lines;
@@ -26,6 +43,7 @@ std::vector<std::string> read_lines_from_file(const std::string& filename) {
     return lines;
 }
 
+// Graph class
 class Graph {
 private:
     std::unordered_map<int, std::vector<int>> graph;
@@ -67,7 +85,7 @@ public:
 
     bool DFS_search(int start_id, const int& target_id) {
         if (should_print)
-            std::cout << "start_id: " << start_id << "target_id: " << target_id << std::endl;
+            std::cout << "start_id: " << start_id << ", target_id: " << target_id << std::endl;
         curr_start_id = start_id;
         std::unordered_set<int> visited;
 
@@ -113,21 +131,21 @@ std::string extract_index(const std::string& input, const char sep, const int id
 }
 
 int main() {
-#if TRICKERER_SQL
-    std::vector<std::string> node_lines = read_lines_from_file("trickerer_outland_northrend.sql");
-    //std::vector<std::string> node_lines = read_lines_from_file("testing.sql");
-#else
-    std::vector<std::string> node_lines = read_lines_from_file("2023_06_09_00_creature_template_npcbot_wander_nodes.sql");
-#endif
-
-#if OUTLAND
-    const std::string node_map_id = "530";
-#else
-    const std::string node_map_id = "571";
-#endif
-
-    std::unordered_map<int, std::vector<int>> node_vertices;
+    std::string node_map_id = std::to_string(continent);
+    std::vector<std::string> node_lines;
     std::unordered_map<int, int> node_zones;
+    std::array<int, 2> isolated_zones {141, 1657};
+    std::unordered_map<int, std::vector<int>> node_vertices;
+
+    if (continent < 2)
+        node_lines = read_lines_from_file("2023_04_04_00_creature_template_npcbot_wander_nodes.sql");
+    else
+#if TRICKERER_SQL
+        node_lines = read_lines_from_file("trickerer_outland_northrend.sql");
+#else
+        node_lines = read_lines_from_file("2023_06_09_00_creature_template_npcbot_wander_nodes.sql");
+#endif
+
     // Loop nodes
     for (const std::string& line : node_lines) {
         if (!line.empty() && line[0] == '(') {
@@ -171,110 +189,77 @@ int main() {
         }
     }
 
+    // Test cases
     g.should_print = true;
-#if OUTLAND && !TRICKERER_SQL
-    bool test_bool = g.DFS_search(2418, 2474);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(2418, 2450);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(2500, 2602);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(2418, 2536);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(2746, 2702);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    //test_bool = g.DFS_search_same_zone(2649, 2626, node_zones);
-    //std::cout << "\n" << test_bool << std::endl;
-    //assert(test_bool);
-#elif !TRICKERER_SQL
-    bool test_bool = g.DFS_search(2802, 2900);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(3273, 3330);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    //test_bool = g.DFS_search_same_zone(3209, 3225, node_zones);
-    //std::cout << "\n" << test_bool << std::endl;
-    //assert(test_bool);
-    //test_bool = g.DFS_search_same_zone(2970, 3003, node_zones);
-    //std::cout << "\n" << test_bool << std::endl;
-    //assert(test_bool);
-    // Test print zones
-    std::cout << "3228 zone_id: " << node_zones[3228] << std::endl;
-    std::cout << "3225 zone_id: " << node_zones[3225] << std::endl;
-#elif OUTLAND && TRICKERER_SQL
-    bool test_bool = g.DFS_search(2418, 2864);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(2889, 3096);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(3257, 3442);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(3442, 3778);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
+    if (continent == EasternKingdoms) {
+        assert(g.DFS_search(686, 913));
+        assert(g.DFS_search(748, 942));
+        assert(g.DFS_search(778, 2));
+    } else if (continent == Kalimdor) {
+        assert(g.DFS_search(1005, 1236));
+        assert(g.DFS_search(26, 2366));
+        assert(g.DFS_search(1271, 95));
+    }
+#if TRICKERER_SQL
+    else if (continent == Outland) {
+        assert(g.DFS_search(2418, 2864));
+        assert(g.DFS_search(2889, 3096));
+        assert(g.DFS_search(3257, 3442));
+    } else {
+        assert(g.DFS_search(4010, 4556));
+        assert(g.DFS_search(4992, 4362));
+        assert(g.DFS_search(3779, 5038));
+    }
 #else
-    // These will fail - trickerer's northrend nodes aren't "fully linked"
-    bool test_bool = g.DFS_search(4854, 5038);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(5038, 4854);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(4719, 5038);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(5038, 4719);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(5038, 4103);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(5038, 3978);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(5038, 3923);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
-    test_bool = g.DFS_search(4103, 4132);
-    std::cout << "\n" << test_bool << std::endl;
-    assert(test_bool);
+    else if (continent == Outland) {
+        assert(g.DFS_search(2418, 2474));
+        assert(g.DFS_search(2418, 2450));
+        assert(g.DFS_search(2500, 2602));
+    } else {
+        assert(g.DFS_search(2802, 2900));
+        assert(g.DFS_search(3273, 3330));
+        assert(g.DFS_search(3353, 2708));
+    }
 #endif
 
     size_t node_count = node_vertices.size();
-    std::cout << "Looping all nodes... Nodes: " << node_count << std::endl;
+    std::cout << "\nLooping all nodes... Nodes: " << node_count << std::endl;
     bool links_to_all = true;
+    bool break_when_no_link = false;
     int loop_counter = 0;
+    int isolated_counter = 0;
     g.should_print = false;
 
     for (const auto& entry : node_vertices) {
         int node_id = entry.first;
         for (const auto& other_entry : node_vertices) {
             int other_node_id = other_entry.first;
-            if (node_id != other_node_id) {
+            // If the zone is isolated (like Teldrassil) only check nodes with same zone:
+            // If node_id is isolated, then other_node_id must have same zone.
+            // If other_node_id is isolated, then node_id must have the same zone.
+            bool trying_to_reach_isolated = (contains(isolated_zones, node_zones[node_id]) || 
+                    (contains(isolated_zones, node_zones[other_node_id]))) && node_zones[node_id] != node_zones[other_node_id];
+            if (trying_to_reach_isolated)
+                isolated_counter++;
+            if (node_id != other_node_id && !trying_to_reach_isolated) {
                 bool can_reach = g.DFS_search(node_id, other_node_id);
                 loop_counter++;
 				//if (loop_counter % 300 == 0) g.should_print = true;
 				//else g.should_print = false;
                 if (!can_reach) {
-                    std::cout << "CAN'T REACH: " << other_node_id << " FROM NODE: " << node_id << std::endl;
+                    std::cout << "CAN'T REACH: " << other_node_id << " (zone: " << node_zones[other_node_id] << 
+                        ") FROM NODE: " << node_id << " (zone: " << node_zones[node_id] << ")" << std::endl;
                     links_to_all = false;
-                    break;
+                    if (break_when_no_link)
+                        break;
                 }
             }
         }
-        if (!links_to_all)
+        if (!links_to_all && break_when_no_link)
             break;
     }
 
-    std::cout << "Done checking links... loop_counter: " << loop_counter << " - should be " 
+    std::cout << "Done checking links... Nodes checked: " << loop_counter + isolated_counter << " - should be " 
         << node_count << " * " << node_count - 1 << " = " << 
         node_count * (node_count - 1) << std::endl;
 
