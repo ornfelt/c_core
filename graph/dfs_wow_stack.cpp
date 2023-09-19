@@ -6,6 +6,7 @@
 #include <vector>
 #include <regex>
 #include <assert.h>
+#include <array>
 
 // Compile with: g++ -O2 -Wall dfs_wow_stack.cpp -o dfs_wow_stack
 
@@ -20,11 +21,11 @@ enum ContinentID {
 };
 
 // Settings and global vars
-#define TRICKERER_SQL 0 // Use Trickerer's Outland and Northrend SQL
+#define TRICKERER_SQL 1 // Use Trickerer's Outland and Northrend SQL
 //ContinentID continent = EasternKingdoms;
 //ContinentID continent = Kalimdor;
-//ContinentID continent = Outland;
-ContinentID continent = Northrend;
+ContinentID continent = Outland;
+//ContinentID continent = Northrend;
 
 template<class C, typename T>
 bool contains(C&& c, T e) { return std::find(begin(c), end(c), e) != end(c); };
@@ -150,11 +151,29 @@ std::string extract_index(const std::string& input, const char sep, const int id
     return result[idx];
 }
 
+std::vector<std::pair<int, int>> isolated_nodes = {
+    {3923, 3936},
+    {3959, 3978},
+    {4087, 4103},
+    {4746, 4789},
+    {4790, 4854}
+};
+
+// Check if the node_id is in range of any of the pairs in isolated_nodes and if other_node_id is also in that range
+bool isIsolatedNodes(const int& node_id, const int& other_node_id) {
+    for (const auto& node_range : isolated_nodes)
+        if (node_id >= node_range.first && node_id <= node_range.second)
+            return !(other_node_id >= node_range.first && other_node_id <= node_range.second);
+        else if (other_node_id >= node_range.first && other_node_id <= node_range.second)
+            return !(node_id >= node_range.first && node_id <= node_range.second);
+    return false;
+}
+
 int main() {
     std::string node_map_id = std::to_string(continent);
     std::vector<std::string> node_lines;
     std::unordered_map<int, int> node_zones;
-    std::array<int, 2> isolated_zones {141, 1657};
+    std::array<int, 2> isolated_zones = {141, 1657};
     std::unordered_map<int, std::vector<int>> node_vertices;
 
     if (continent < 2)
@@ -257,11 +276,18 @@ int main() {
             // If the zone is isolated (like Teldrassil) only check nodes with same zone:
             // If node_id is isolated, then other_node_id must have same zone.
             // If other_node_id is isolated, then node_id must have the same zone.
+            // If Trickerer's Northrend nodes are searched, also check isolated nodes
+#if TRICKERER_SQL
+            bool trying_to_reach_isolated = ((contains(isolated_zones, node_zones[node_id]) || 
+                        contains(isolated_zones, node_zones[other_node_id])) && node_zones[node_id] != node_zones[other_node_id])
+                || isIsolatedNodes(node_id, other_node_id);
+#else
             bool trying_to_reach_isolated = (contains(isolated_zones, node_zones[node_id]) || 
                     (contains(isolated_zones, node_zones[other_node_id]))) && node_zones[node_id] != node_zones[other_node_id];
+#endif
             if (trying_to_reach_isolated)
                 isolated_counter++;
-            if (node_id != other_node_id && !trying_to_reach_isolated) {
+            else if (node_id != other_node_id && !trying_to_reach_isolated) {
                 bool can_reach = g.DFS_search(node_id, other_node_id);
                 loop_counter++;
 				//if (loop_counter % 300 == 0) g.should_print = true;
@@ -279,9 +305,11 @@ int main() {
             break;
     }
 
-    std::cout << "Done checking links... Nodes checked: " << loop_counter + isolated_counter << " - should be " 
-        << node_count << " * " << node_count - 1 << " = " << 
+    std::cout << "Done checking links... links_to_all: " << links_to_all << ". Nodes checked: " << 
+        loop_counter + isolated_counter << " - should be " << node_count << " * " << node_count - 1 << " = " << 
         node_count * (node_count - 1) << std::endl;
+    std::cout << "isolated_counter: " << isolated_counter << " (" << 
+        (static_cast<float>(isolated_counter) / loop_counter) * 100 << " %)" << std::endl;
 
     return 0;
 }
