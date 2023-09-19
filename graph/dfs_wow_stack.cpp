@@ -276,7 +276,9 @@ int main() {
             // If the zone is isolated (like Teldrassil) only check nodes with same zone:
             // If node_id is isolated, then other_node_id must have same zone.
             // If other_node_id is isolated, then node_id must have the same zone.
-            // If Trickerer's Northrend nodes are searched, also check isolated nodes
+            // If Trickerer's Northrend nodes are searched, also check isolated nodes...
+            // Also be aware that Trickerer's Borean tundra and Dragonblight nodes aren't linked.
+            // I've added a link manually to fix this...
 #if TRICKERER_SQL
             bool trying_to_reach_isolated = ((contains(isolated_zones, node_zones[node_id]) || 
                         contains(isolated_zones, node_zones[other_node_id])) && node_zones[node_id] != node_zones[other_node_id])
