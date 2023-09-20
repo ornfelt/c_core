@@ -213,6 +213,8 @@ public class wowbot {
 				// Try one more time
 				if (!resultSet.next()) {
 					System.out.println("Player still not logged in. Trying to log in once more...");
+                    r.delay(1000);
+                    sendKey(KeyEvent.VK_ENTER);
 					tryLogin();
 					// Execute SQL again
 					resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
