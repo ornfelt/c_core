@@ -24,8 +24,8 @@ enum ContinentID {
 #define TRICKERER_SQL 1 // Use Trickerer's Outland and Northrend SQL
 //ContinentID continent = EasternKingdoms;
 //ContinentID continent = Kalimdor;
-ContinentID continent = Outland;
-//ContinentID continent = Northrend;
+//ContinentID continent = Outland;
+ContinentID continent = Northrend;
 
 template<class C, typename T>
 bool contains(C&& c, T e) { return std::find(begin(c), end(c), e) != end(c); };
