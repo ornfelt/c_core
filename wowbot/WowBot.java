@@ -1,36 +1,22 @@
 package wowbot;
 
 import java.awt.AWTException;
-import java.awt.Desktop;
-import java.awt.HeadlessException;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.swing.JOptionPane;
 import java.sql.*;
 
 class MousePos {
@@ -59,8 +45,6 @@ public class WowBot {
 	private MousePos bg3 = new MousePos(240, 260);
 	private MousePos bg4 = new MousePos(240, 280);
 	private MousePos lowLevelWsg = new MousePos(240, 220);
-	private MousePos lowLevelAb = new MousePos(240, 240);
-	private MousePos lowLevelAv = new MousePos(240, 250);
 	private MousePos acceptRess = new MousePos(730, 220);
 
 	// Timers
@@ -215,6 +199,8 @@ public class WowBot {
 				// Try one more time
 				if (!resultSet.next()) {
 					System.out.println("Player still not logged in. Trying to log in once more...");
+					r.delay(1000);
+					sendKey(KeyEvent.VK_ENTER);
 					tryLogin();
 					// Execute SQL again
 					resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
