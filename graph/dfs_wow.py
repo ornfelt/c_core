@@ -1,141 +1,193 @@
-# READ FILE
-OUTLAND = 1
-TRICKERER_SQL = 1
+import re
 
-def read_lines_from_file(file_name):
-  with open(file_name) as file:
-      node_lines = [line.rstrip() for line in file]
-      #print(node_lines)
-      return node_lines
+def read_lines_from_file(filename):
+    with open(filename, 'r') as file:
+        return file.readlines()
 
-node_vertices = {}
-node_zones = {}
-node_lines = read_lines_from_file("trickerer_outland_northrend.sql") if TRICKERER_SQL else read_lines_from_file("2023_06_09_00_creature_template_npcbot_wander_nodes.sql")
-#node_lines = read_lines_from_file("testing.sql") if TRICKERER_SQL else read_lines_from_file("2023_06_09_00_creature_template_npcbot_wander_nodes.sql")
-node_map_id = "530" if OUTLAND else "571"
-# Loop nodes
-for line in node_lines:
-  if len(line) > 0 and line[0] == '(':
-    map_id = line.split(",")[2]
-    if map_id == node_map_id:
-      node_id = line.split('(')[1].split(',')[0]
-      #print(node_id)
-      #node_links = line.split("'")[3].replace(":0", "")
-      #node_links = node_links.rstrip(node_links[-1]).split(" ")
-      node_links = line.split("'")[3].replace(":0", "")[:-1].split(" ")
-      #print(node_links)
-      node_vertices[node_id] = node_links
-      # Also add zone_ids
-      zone_id = line.split(",")[3]
-      node_zones[node_id] = zone_id
+class ContinentID:
+    EasternKingdoms = 0
+    Kalimdor = 1
+    Outland = 530
+    Northrend = 571
 
-from collections import defaultdict
+# Settings and global vars
+TRICKERER_SQL = 0
+continent = ContinentID.EasternKingdoms
 
-# This class represents a directed graph using adjacency list representation
+def contains(c, e):
+    return e in c
+
 class Graph:
-  def __init__(self):
-    # Default dictionary to store graph
-    self.graph = defaultdict(list)
-    self.found_targets = defaultdict(set)
-    self.node_history = defaultdict(list)
-    self.used_found_targets_count = 0
-    self.curr_start_id = 0
-    self.should_print = False
+    def __init__(self):
+        self.graph = {}
+        self.node_history = {}
+        self.curr_start_id = 0
+        self.target_found = False
+        self.found_targets = {}
+        self.should_print = False
 
-  def addEdge(self, u, v):
-    self.graph[u].append(v)
+    def addEdge(self, u, v):
+        if u not in self.graph:
+            self.graph[u] = []
+        self.graph[u].append(v)
 
-  def DFSUtil(self, v, visited, target_v):
-    # Mark the current node as visited and print it
-    visited.add(v)
-    if v not in self.node_history[self.curr_start_id] and v != self.curr_start_id:
-      self.node_history[self.curr_start_id].append(v)
+    def DFSUtil(self, v, visited, target_v):
+        visited.add(v)
+        if v not in self.node_history.get(self.curr_start_id, []) and v != self.curr_start_id:
+            if self.curr_start_id not in self.node_history:
+                self.node_history[self.curr_start_id] = []
+            self.node_history[self.curr_start_id].append(v)
 
-    if v == target_v:
-      if self.should_print:
-        print(v, end=" ")
-        print("Target found!")
-      self.target_found = True
-      #self.found_targets[target_v].update(visited)
-      self.found_targets[target_v] = self.found_targets[target_v].union(visited)
-      return
-    elif not self.target_found:
-      if self.should_print:
-        print(v, end=" ")
-      # Recur for all the vertices adjacent to this vertex
-      for neighbour in self.graph[v]:
-        if neighbour not in visited:
-          self.DFSUtil(neighbour, visited, target_v)
+        if v == target_v:
+            if self.should_print:
+                print(f"{v} Target found!")
+            self.target_found = True
+            if target_v not in self.found_targets:
+                self.found_targets[target_v] = set()
+            self.found_targets[target_v].update(visited)
+            return
+        elif not self.target_found:
+            if self.should_print:
+                print(v, end=" ")
+            for neighbour in self.graph.get(v, []):
+                if neighbour not in visited:
+                    self.DFSUtil(neighbour, visited, target_v)
 
-  def DFS_search(self, start_id, target_id):
-    if self.should_print:
-      print("start_id:", start_id, "\ntarget_id:", target_id)
-    self.curr_start_id = start_id
-    visited = set()
-    # First check found_targets
-    if target_id in self.found_targets.keys() and start_id in self.found_targets[target_id]:
-      #print(f"Target {target_id} already found from start_id {start_id}")
-      self.used_found_targets_count += 1
-      return True
-    elif len(self.node_history[start_id]) > 0:
-      if target_id in self.found_targets.keys():
-        for start_node in self.node_history[start_id]:
-          if start_node == target_id or start_node in self.found_targets[target_id]:
+    def DFS_search(self, start_id, target_id):
+        if self.should_print:
+            print(f"start_id: {start_id}, target_id: {target_id}")
+        self.curr_start_id = start_id
+        visited = set()
+
+        if target_id in self.found_targets and start_id in self.found_targets[target_id]:
             return True
-      else:
-        start_id = self.node_history[start_id][-1]
-        visited = set(self.node_history[start_id])
+        elif start_id in self.node_history:
+            if target_id in self.found_targets:
+                for start_node in self.node_history[start_id]:
+                    if start_node == target_id or start_node in self.found_targets[target_id]:
+                        return True
+            else:
+                start_id = self.node_history[start_id][-1]
+                if start_id in self.node_history:  # Check if start_id exists in node_history before updating visited
+                    visited.update(self.node_history[start_id])
 
-    self.target_found = False
-    for vertex in self.graph.copy()[start_id]:
-    #for vertex in self.graph[start_id]:
-      if vertex not in visited and not self.target_found:
-        self.DFSUtil(vertex, visited, target_id)
-      if self.target_found:
+        self.target_found = False
+        for vertex in self.graph.get(start_id, []):
+            if vertex not in visited and not self.target_found:
+                self.DFSUtil(vertex, visited, target_id)
+
+            if self.target_found:
+                return True
         return self.target_found
 
-    return self.target_found
+def extract_index(input_str, sep, idx):
+    return input_str.split(sep)[idx]
 
-#if __name__ == "__main__":
-g = Graph()
-for node_id, node_links in node_vertices.items():
-  #print(node_id, node_links)
-  for link in node_links:
-    g.addEdge(int(node_id), int(link))
+isolated_nodes = [
+    (3923, 3936),
+    (3959, 3978),
+    (4087, 4103),
+    (4746, 4789),
+    (4790, 4854)
+]
 
-g.should_print = True
-# Search all
-print("\nLooping all nodes... Nodes:", len(node_vertices.values()))
-loop_counter = 0
-loop_counter_one = 0
-#g.should_print = False
-links_to_all = True
-# Dicts are ordered in Pythhon >= 3.7, so we can iterate over the keys like below
-# We can also randomize dict order to potentially get better results
-can_reach = g.DFS_search(2418, 3579) # Hf -> Netherstorm
-print(can_reach)
-can_reach = g.DFS_search(2418, 2860) # Hf -> Nagrand
-print(can_reach)
-can_reach = g.DFS_search(2418, 3649) # Hf -> Shadowmoon
-print(can_reach)
+def isIsolatedNodes(node_id, other_node_id):
+    for node_range in isolated_nodes:
+        if node_id >= node_range[0] and node_id <= node_range[1]:
+            return not (other_node_id >= node_range[0] and other_node_id <= node_range[1])
+        elif other_node_id >= node_range[0] and other_node_id <= node_range[1]:
+            return not (node_id >= node_range[0] and node_id <= node_range[1])
+    return False
 
-g.should_print = False
-for node_id in node_vertices.keys():
-  for other_node_id in node_vertices.keys():
-    node_id = int(node_id)
-    other_node_id = int(other_node_id)
-    if node_id != other_node_id:
-      can_reach = g.DFS_search(node_id, other_node_id)
-      loop_counter += 1
-      if not can_reach:
-        print("CAN'T REACH:", other_node_id, "FROM NODE:", node_id)
-        links_to_all = False
-        break
-  else:
-    continue # Only executed if the inner loop did NOT break
-  break # Only executed if the inner loop DID break
+def main():
+    node_map_id = str(continent)
+    node_lines = []
+    node_zones = {}
+    isolated_zones = [141, 1657]
+    node_vertices = {}
 
-node_node_count = len(node_vertices.values())
-print("Done checking links... loop_counter:", loop_counter, "- should be", node_node_count,"*",node_node_count-1," = ",node_node_count*(node_node_count-1))
-#assert loop_counter == node_node_count * (node_node_count-1)
-print("used_found_targets_count:", g.used_found_targets_count)
+    if continent < 2:
+        node_lines = read_lines_from_file("2023_04_04_00_creature_template_npcbot_wander_nodes.sql")
+    else:
+        if TRICKERER_SQL:
+            node_lines = read_lines_from_file("trickerer_outland_northrend.sql")
+        else:
+            node_lines = read_lines_from_file("2023_06_09_00_creature_template_npcbot_wander_nodes.sql")
+
+    for line in node_lines:
+        if line and line[0] == '(':
+            map_id = extract_index(line, ',', 2).strip()
+            if map_id == node_map_id:
+                node_id = int(line.split(',')[0][1:].strip())
+                node_links = re.sub(":0", "", extract_index(line, '\'', 3))
+                links = [int(link) for link in node_links.split()]
+                node_vertices[node_id] = links
+                zone_id = int(extract_index(line, ',', 3))
+                node_zones[node_id] = zone_id
+
+    g = Graph()
+    for node_id, node_links in node_vertices.items():
+        for link in node_links:
+            g.addEdge(node_id, link)
+
+    g.should_print = True
+    if continent == ContinentID.EasternKingdoms:
+        assert g.DFS_search(686, 913)
+        assert g.DFS_search(748, 942)
+        assert g.DFS_search(778, 2)
+    elif continent == ContinentID.Kalimdor:
+        assert g.DFS_search(1005, 1236)
+        assert g.DFS_search(26, 2366)
+        assert g.DFS_search(1271, 95)
+    elif TRICKERER_SQL:
+        if continent == ContinentID.Outland:
+            assert g.DFS_search(2418, 2864)
+            assert g.DFS_search(2889, 3096)
+            assert g.DFS_search(3257, 3442)
+        else:
+            assert g.DFS_search(4010, 4556)
+            assert g.DFS_search(4992, 4362)
+            assert g.DFS_search(3779, 5038)
+    else:
+        if continent == ContinentID.Outland:
+            assert g.DFS_search(2418, 2474)
+            assert g.DFS_search(2418, 2450)
+            assert g.DFS_search(2500, 2602)
+        else:
+            assert g.DFS_search(2802, 2900)
+            assert g.DFS_search(3273, 3330)
+            assert g.DFS_search(3353, 2708)
+
+    node_count = len(node_vertices)
+    print(f"\nLooping all nodes... Nodes: {node_count}")
+    links_to_all = True
+    break_when_no_link = False
+    loop_counter = 0
+    isolated_counter = 0
+    g.should_print = False
+
+    for node_id in node_vertices:
+        for other_node_id in node_vertices:
+            if TRICKERER_SQL:
+                trying_to_reach_isolated = (node_zones[node_id] in isolated_zones or node_zones[other_node_id] in isolated_zones) and node_zones[node_id] != node_zones[other_node_id] or isIsolatedNodes(node_id, other_node_id)
+            else:
+                trying_to_reach_isolated = (node_zones[node_id] in isolated_zones or node_zones[other_node_id] in isolated_zones) and node_zones[node_id] != node_zones[other_node_id]
+
+            if trying_to_reach_isolated:
+                isolated_counter += 1
+            elif node_id != other_node_id and not trying_to_reach_isolated:
+                can_reach = g.DFS_search(node_id, other_node_id)
+                loop_counter += 1
+                if not can_reach:
+                    print(f"CAN'T REACH: {other_node_id} (zone: {node_zones[other_node_id]}) FROM NODE: {node_id} (zone: {node_zones[node_id]})")
+                    links_to_all = False
+                    if break_when_no_link:
+                        break
+        if not links_to_all and break_when_no_link:
+            break
+
+    print(f"Done checking links... links_to_all: {links_to_all}. Nodes checked: {loop_counter + isolated_counter} - should be {node_count} * {node_count - 1} = {node_count * (node_count - 1)}")
+    print(f"isolated_counter: {isolated_counter} ({(isolated_counter / loop_counter) * 100} %)")
+
+if __name__ == "__main__":
+    main()
