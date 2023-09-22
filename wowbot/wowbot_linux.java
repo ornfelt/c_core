@@ -89,25 +89,7 @@ public class wowbot {
 	private static List<Integer> hordeRaces = Arrays.asList(2, 5, 6, 8, 10 );
 
 	// The order of the BGs might change depending on current Call to Arms
-	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		if (otherCTA) {
-			put(0, 2); // WSG 2
-			put(1, 3); // AB 3
-			put(2, 4); // AV 4
-		} else if (avCTA) {
-			put(2, 1); // AV 1
-			put(0, 2); // WSG 2
-			put(1, 3); // AB 3
-		} else if (abCTA) {
-			put(1, 1); // AB 1
-			put(0, 2); // WSG 2
-			put(2, 3); // AV 3
-		} else {
-			put(0, 1); // WSG 1
-			put(1, 2); // AB 2
-			put(2, 3); // AV 3
-		}
-	}};
+	private Map<Object, Object> bgOrderMap;
 	
 	public wowbot() {
 		rand = new Random();
@@ -156,6 +138,26 @@ public class wowbot {
 		
 		otherCTA = (eyeCTA || strandCTA || isleCTA);
 		System.out.println("abCTA: " + abCTA + ", avCTA: " + avCTA + ", otherCTA: " + otherCTA);
+
+		bgOrderMap = new HashMap<Object, Object>() {{
+			if (otherCTA) {
+				put(0, 2); // WSG 2
+				put(1, 3); // AB 3
+				put(2, 4); // AV 4
+			} else if (avCTA) {
+				put(2, 1); // AV 1
+				put(0, 2); // WSG 2
+				put(1, 3); // AB 3
+			} else if (abCTA) {
+				put(1, 1); // AB 1
+				put(0, 2); // WSG 2
+				put(2, 3); // AV 3
+			} else {
+				put(0, 1); // WSG 1
+				put(1, 2); // AB 2
+				put(2, 3); // AV 3
+			}
+		}};
 	}
 	
 	boolean checkCTA(String startTime, long occurence, long length) {
