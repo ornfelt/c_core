@@ -71,29 +71,11 @@ public class WowBot {
 	//private static String bgInput = "a"; // Random arenas
 	private static final String bgTeleSpotHorde = "silvermooncity";
 	private static final String bgTeleSpotAlly = "exodar";
+
 	// Horde races
 	private static List<Integer> hordeRaces = Arrays.asList(2, 5, 6, 8, 10 );
-	
 	// The order of the BGs might change depending on current Call to Arms
-	private static Map<Object, Object> bgOrderMap = new HashMap<Object, Object>() {{
-		if (otherCTA) {
-			put(0, 2); // WSG 2
-			put(1, 3); // AB 3
-			put(2, 4); // AV 4
-		} else if (avCTA) {
-			put(2, 1); // AV 1
-			put(0, 2); // WSG 2
-			put(1, 3); // AB 3
-		} else if (abCTA) {
-			put(1, 1); // AB 1
-			put(0, 2); // WSG 2
-			put(2, 3); // AV 3
-		} else {
-			put(0, 1); // WSG 1
-			put(1, 2); // AB 2
-			put(2, 3); // AV 3
-		}
-	}};
+	private static Map<Object, Object> bgOrderMap;
 	
 	public WowBot() {
 		rand = new Random();
@@ -142,6 +124,26 @@ public class WowBot {
 		
 		otherCTA = (eyeCTA || strandCTA || isleCTA);
 		System.out.println("abCTA: " + abCTA + ", avCTA: " + avCTA + ", otherCTA: " + otherCTA);
+
+		bgOrderMap = new HashMap<Object, Object>() {{
+			if (otherCTA) {
+				put(0, 2); // WSG 2
+				put(1, 3); // AB 3
+				put(2, 4); // AV 4
+			} else if (avCTA) {
+				put(2, 1); // AV 1
+				put(0, 2); // WSG 2
+				put(1, 3); // AB 3
+			} else if (abCTA) {
+				put(1, 1); // AB 1
+				put(0, 2); // WSG 2
+				put(2, 3); // AV 3
+			} else {
+				put(0, 1); // WSG 1
+				put(1, 2); // AB 2
+				put(2, 3); // AV 3
+			}
+		}};
 	}
 	
 	boolean checkCTA(String startTime, long occurence, long length) {
@@ -811,18 +813,18 @@ public class WowBot {
 	// Execute the characters in string key 
 	void sendKeys(String keys) {
 	    for (char c : keys.toCharArray()) {
-	    	if(c == 'Ã…') {
-	    		keyPress('Ã…');
-	    	}else if (c == 'Ã„') {
-	    		keyPress('Ã„');
-	    	}else if (c == 'Ã–') {
-	    		keyPress('Ã–');
-	    	}else if (c == 'Ã¥') {
-	    		keyPress('Ã¥');
-	    	}else if (c == 'Ã¤') {
-	    		keyPress('Ã¤');
-	    	}else if (c == 'Ã¶') {
-	    		keyPress('Ã¶');
+	    	if(c == 'Å') {
+	    		keyPress('Å');
+	    	}else if (c == 'Ä') {
+	    		keyPress('Ä');
+	    	}else if (c == 'Ö') {
+	    		keyPress('Ö');
+	    	}else if (c == 'å') {
+	    		keyPress('å');
+	    	}else if (c == 'ä') {
+	    		keyPress('ä');
+	    	}else if (c == 'ö') {
+	    		keyPress('ö');
 	    	}else if (c == '&') {
 	    		keyPress('&');
 	    	}else if (c == '#') {
@@ -871,12 +873,12 @@ public class WowBot {
 	        case '0': altNumpad("48"); break;
 	        case ':': altNumpad("58"); break;
 	        case '@': altNumpad("64"); break;
-	        case 'Ã¥': altNumpad("134"); break;
-	        case 'Ã¤': altNumpad("132"); break;
-	        case 'Ã¶': altNumpad("148"); break;
-	        case 'Ã…': altNumpad("143"); break;
-	        case 'Ã„': altNumpad("142"); break;
-	        case 'Ã–': altNumpad("153"); break;
+	        case 'å': altNumpad("134"); break;
+	        case 'ä': altNumpad("132"); break;
+	        case 'ö': altNumpad("148"); break;
+	        case 'Å': altNumpad("143"); break;
+	        case 'Ä': altNumpad("142"); break;
+	        case 'Ö': altNumpad("153"); break;
 	        default: return;
 	    }
 	}
