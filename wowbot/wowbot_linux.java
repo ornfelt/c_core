@@ -1,36 +1,22 @@
 package wowbot;
 
 import java.awt.AWTException;
-import java.awt.Desktop;
-import java.awt.HeadlessException;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import javax.swing.JOptionPane;
 import java.sql.*;
 
 class MousePos {
@@ -71,6 +57,7 @@ public class wowbot {
 	private static final int AVTURNTIMERHORDE = 70;
 	
 	// Queue settings
+	private static boolean isAcore = true; // AzerothCore / TrinityCore
 	private static boolean isArena = false; // Start with BG when random
 	private static boolean isGroup = false; // If group queue (BG only)
 	private static boolean isLowLevel = false; // If low level (special ordering of BGs)
@@ -85,9 +72,9 @@ public class wowbot {
 	//private static String bgInput = "a"; // Random arenas
 	private static final String bgTeleSpotHorde = "silvermooncity";
 	private static final String bgTeleSpotAlly = "exodar";
+
 	// Horde races
 	private static List<Integer> hordeRaces = Arrays.asList(2, 5, 6, 8, 10 );
-
 	// The order of the BGs might change depending on current Call to Arms
 	private Map<Object, Object> bgOrderMap;
 	
@@ -195,14 +182,21 @@ public class wowbot {
         try {
             //Class.forName("com.mysql.cj.jdbc.Driver");
             Class.forName("org.mariadb.jdbc.Driver");
-            connection = DriverManager.getConnection(
-                //"jdbc:mysql://localhost:3306/acore_characters",
-                "jdbc:mariadb://localhost:3306/acore_characters",
-                "acore", "acore");
+            if (isAcore)
+				connection = DriverManager.getConnection(
+					//"jdbc:mysql://localhost:3306/acore_characters",
+					"jdbc:mariadb://localhost:3306/acore_characters",
+					"acore", "acore");
+            else
+				connection = DriverManager.getConnection(
+					//"jdbc:mysql://localhost:3306/characters",
+					"jdbc:mariadb://localhost:3306/characters",
+					"trinity", "trinity");
  
             int accountId = 1;
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+            //ResultSet resultSet = statement.executeQuery("select name, race, level from characters where online = 1 and account = " + accountId);
+            ResultSet resultSet = statement.executeQuery("select name, race, level from characters where online = 1");
             String race = "";
             int level = 0;
 
@@ -259,7 +253,7 @@ public class wowbot {
 		r.delay(60);
 		r.keyRelease(KeyEvent.VK_A);
 		r.delay(500);
-		sendKeys("acore");
+		sendKeys(isAcore ? "acore" : "tcore");
 		r.delay(200);
 		sendKey(KeyEvent.VK_TAB);
 		r.delay(200);
@@ -642,6 +636,7 @@ public class wowbot {
 				r.delay(WSGTURNTIMERALLY); // Ally
 			else
 				r.delay(WSGTURNTIMERHORDE); // Horde
+
 			r.keyRelease(KeyEvent.VK_A);
 			r.delay(500);
 			r.keyPress(KeyEvent.VK_W);
@@ -812,8 +807,6 @@ public class wowbot {
 		}
 		if (bg == 2)
 			System.out.println("End of AV loop... timeInBg: " + timeInBg);
-		
-		// rand.nextInt(100) < 34
 	}
 	
 	// Thread.Sleep for x amount of time
@@ -955,7 +948,7 @@ public class wowbot {
 	    }
 	}
 	
-	//click on the screen with Robot 
+	// Click on the screen with Robot 
 	void click(int x, int y) throws AWTException{
 		r.mouseMove(x, y);    
 		r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
