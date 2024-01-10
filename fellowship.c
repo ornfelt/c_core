@@ -73,15 +73,10 @@ int main (void)
 
 	// Remove members when exiting
 	printf("\nRemoving all members from memory...");
-	for (p = head_member; p; p = p->next){
-		remove_member_v2(p->name);
-	}
-	// Old version (doesn't work, might need to double check yt, but the one above is better...)
-	//for (p = head_member; p; p = p->next){
-	//	p_next = p->next;
-	//	remove_member(p_next->name);
-	//	//remove_member_v2(p_next->name);
-	//}
+    while (head_member != NULL) {
+        remove_member_v2(head_member->name);
+    }
+	
 	return 0;
 }
 
@@ -163,30 +158,32 @@ bool remove_member(char *name)
 	return false;
 }
 
-
+// Uses double pointers (MEMBER_DATA **curr). Treats all nodes uniformly,
+// including the head node, by using a double pointer that can point to
+// head_member or the next pointer of any node in the list. Simplifies the
+// logic by removing the special case handling for the head node.
 bool remove_member_v2(char *name)
 {
-	printf("\nRemove_member_v2 called...\n");
-	if (head_member == NULL){
-		printf("\nThere are no members to remove.\n\n");
-		return false;
-	}
-
-    for (MEMBER_DATA **curr = &head_member; *curr; )
-    {
-        MEMBER_DATA *entry = *curr;
-		if(!strcmp(entry->name, name)) {
-			printf("Removed: %s\n", entry->name);
-            *curr = entry->next;
-			free(entry->name);
-			free(entry->race);
-            free(entry);
-			entry = NULL;
-        }
-        else
-            curr = &entry->next;
+    printf("\nRemoving %s\n", name);
+	
+    if (head_member == NULL) {
+        printf("\nThere are no members to remove.\n\n");
+        return false;
     }
-	return true;
-	//printf("\n There is no member named %s.\n\n", name);
-	//return false;
+
+    for (MEMBER_DATA **curr = &head_member; *curr; ) {
+        MEMBER_DATA *entry = *curr;
+        if (!strcmp(entry->name, name)) {
+            *curr = entry->next;
+            free(entry->name);
+            free(entry->race);
+            free(entry);
+			printf("%s has been removed from the Fellowship.\n", name);
+            return true;
+        }
+        curr = &entry->next; // Advance to next node
+    }
+
+    printf("There is no member named %s in the Fellowship.\n", name);
+    return false;
 }

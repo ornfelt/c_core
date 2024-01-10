@@ -32,7 +32,6 @@ void removeSpacesAlternative(char** s) {
     *dst = '\0';
 }
 
-// OBS: char **argv Is equivalent to char *argv[]
 int main(int argc, char* argv[])
 //int main(int argc, char** argv)
 {

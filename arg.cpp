@@ -1,4 +1,3 @@
-// https://www.geeksforgeeks.org/command-line-arguments-in-c-cpp/
 #include<iostream> 
 using namespace std;
 

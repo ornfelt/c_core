@@ -1,6 +1,3 @@
-// C program to illustrate
-// command line arguments
-// https://www.geeksforgeeks.org/command-line-arguments-in-c-cpp/
 #include<stdio.h>
   
 // OBS: char **argv Is equivalent to char *argv[]
