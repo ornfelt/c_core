@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "D:\\arduino\\libraries",
+                "C:\\Users\\renat\\OneDrive\\Documents\\Arduino\\libraries",
+                "C:\\Users\\renat\\AppData\\Local\\Arduino15\\staging",
+                "C:\\Users\\renat\\AppData\\Local\\Arduino15\\libraries"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
