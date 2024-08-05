@@ -1,0 +1,36 @@
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').
+# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 
+# m h  dom mon dow   command
+
+# Every 5 min
+#*/5 * * * * /usr/bin/python -m mh_z19                > /home/pi/anavi-phat-sensors-ui/data/MH_Z19.json
+*/2 * * * * /home/pi/Code/anavi-phat-sensors-ui/sensors/HTU21D/HTU21D > /home/pi/Code/anavi-phat-sensors-ui/data/HTU21D.json
+*/2 * * * * /usr/bin/python /home/pi/Code/anavi-phat-sensors-ui/sensors/BMP180/BMP180.py > /home/pi/Code/anavi-phat-sensors-ui/data/BMP180.json
+*/2 * * * * /home/pi/Code/anavi-phat-sensors-ui/sensors/BH1750/BH1750 > /home/pi/Code/anavi-phat-sensors-ui/data/BH1750.json
+
+# Get weather every 5 min
+*/5 * * * * /usr/bin/python /home/pi/Code/anavi-phat-sensors-ui/sensors/wttr/wttr.py
+# Get weather every hour on the hour
+#0 * * * * /usr/bin/python /home/pi/Code/anavi-phat-sensors-ui/sensors/wttr/wttr.py
+# Get weather every hour at 30
+#30 * * * * /usr/bin/python /home/pi/Code/anavi-phat-sensors-ui/sensors/wttr/wttr.py

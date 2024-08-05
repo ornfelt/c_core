@@ -1,0 +1,29 @@
+craftz change output format anavi-examples:
+
+ 
+sensors/BMP180/c/BMP180-example.c
+Original file line number	Diff line number	Diff line change
+@@ -28,7 +28,7 @@ int main()
+	getPressure(fd, &pressure);
+
+	printf("BMP180 Sensor Module\n");
+	printf("Temperature\t%0.1f C\n", temperature);
+	printf("Pressure\t%0.2f hPa\n", pressure);
+	printf("Temperature: %0.1f C\n", temperature);
+	printf("Pressure: %0.2f hPa\n", pressure);
+	return 0;
+}
+  4 changes: 2 additions & 2 deletions4  
+sensors/HTU21D/c/HTU21D-example.c
+Original file line number	Diff line number	Diff line change
+@@ -28,8 +28,8 @@ int main()
+
+	// Print temperature and humidity on the screen
+	printf("HTU21D Sensor Module\n");
+	printf("%5.2fC\n", temperature);
+	printf("%5.2f%%rh\n", humidity);
+	printf("Temperature: %5.2fC\n", temperature);
+	printf("Humidity: %5.2f%%rh\n", humidity);
+
+	return 0;
+}

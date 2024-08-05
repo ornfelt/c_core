@@ -1,0 +1,29 @@
+{
+  "name": "anavi-phat-sensors-ui",
+  "version": "1.0.0",
+  "description": "A web interface for sensor data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier -w *.js **/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/craftzdog/anavi-phat-sensors-recorder-firestore.git"
+  },
+  "keywords": [
+    "RaspberryPi",
+    "CO2",
+    "ANAVI"
+  ],
+  "author": "Takuya Matsuyama <hi@craftz.dog>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/craftzdog/anavi-phat-sensors-recorder-firestore/issues"
+  },
+  "homepage": "https://github.com/craftzdog/anavi-phat-sensors-recorder-firestore#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  }
+}

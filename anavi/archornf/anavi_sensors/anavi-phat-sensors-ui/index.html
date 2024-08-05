@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Room Air Quality</title>
+
+    <script src="lib/moment.min.js"></script>
+    <script src="lib/moment-timezone-with-data-2012-2022.min.js"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@100&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="lib/semantic.min.css" />
+    <link rel="stylesheet" href="./index.css" />
+
+    <embed
+      src="./sounds/alert.mp3"
+      autostart="false"
+      width="0"
+      height="0"
+      id="alert"
+      enablejavascript="true"
+    />
+  </head>
+  <body>
+    <div class="ui container summary">
+      <div class="ui grid">
+        <div id="temperature" class="sixteen wide column sensor-item">
+          <div class="heading">
+            <img class="svg-icon" src="./images/thermometer-outline.svg" />
+            Temperature
+          </div>
+          <div class="value-container">
+            <span class="value"></span>
+            <span class="unit">℃</span>
+          </div>
+        </div>
+        <div id="humidity" class="sixteen wide column sensor-item">
+          <div class="heading">
+            <img class="svg-icon" src="./images/water-outline.svg" /> Humidity
+          </div>
+          <div class="value-container">
+            <span class="value"></span>
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div id="pressure" class="sixteen wide column sensor-item">
+          <div class="heading">
+            <img class="svg-icon" src="./images/cloud-outline.svg" /> Pressure
+          </div>
+          <div class="value-container">
+            <span class="value"></span>
+            <span class="unit">hPa</span>
+          </div>
+        </div>
+        <div id="light" class="sixteen wide column sensor-item">
+          <div class="heading">
+            <img class="svg-icon" src="./images/sunny-outline.svg" /> Light
+          </div>
+          <div class="value-container">
+            <span class="value"></span>
+	    <!-- <span class="unit">level</span> -->
+          </div>
+        </div>
+
+        <div id="temperature_outside" class="eight wide column sensor-item">
+          <div class="heading">
+	  <!-- <img class="svg-icon" src="./images/thermometer-outline.svg" /> Temperature outside -->
+          </div>
+          <div class="value-container">
+            <span class="value-small"></span>
+	    <!-- <span class="unit">level</span> -->
+          </div>
+        </div>
+
+        <div id="last_backup" class="eight wide column sensor-item">
+          <div class="heading">
+          </div>
+          <div class="value-container">
+            <span class="value-small"></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+	const city = "Uppsala";
+	const api_url = "https://wttr.in/" + city + "?format=j1";
+
+      async function retrieveData() {
+        const res = await Promise.all([
+          fetch("./data/BH1750.json"),
+          fetch("./data/BMP180.json"),
+          fetch("./data/HTU21D.json"),
+          fetch("./data/last_hdd_backup.json"),
+          //fetch(api_url),
+          fetch("./data/wttr.json"),
+          //fetch("./data/MH_Z19.json"),
+        ]);
+        const data = (await Promise.all(res.map((r) => r.json()))).reduce(
+          (item, data) => ({
+            ...data,
+            ...item,
+          }),
+          {}
+        );
+        return data;
+      }
+
+      function updateValues() {
+        return retrieveData().then((data) => {
+          console.log("data:", data);
+          document.querySelector(
+            "#temperature .value"
+          ).innerHTML = data.temperature.slice(0, -1);
+          document.querySelector(
+            "#humidity .value"
+          ).innerHTML = data.humidity;
+          document.querySelector(
+            "#pressure .value"
+          ).innerHTML = data.pressure.slice(0, -3);
+          document.querySelector(
+            "#light .value"
+          ).innerHTML = data.light;
+
+
+	//let city_temp = data.current_condition[0].temp_C + "°C";
+	//let observation_time = data.current_condition[0].observation_time;
+	let city_temp = data.temp_C + "°C";
+	let observation_time = data.observation_time;
+	console.log("Weather outside: ", city_temp);
+	console.log("Weather observation time: ", observation_time);
+
+          document.querySelector(
+            "#temperature_outside .value-small"
+	  ).innerHTML = city + ": " + city_temp + "<br />Measured: " + observation_time + "";
+
+          document.querySelector(
+            "#last_backup .value-small"
+          ).innerHTML = "Latest backup:<br />" + data.backup;
+
+
+          //if (data.co2 >= 1000) {
+            //playAlertSound();
+          //}
+        });
+
+      }
+
+      function playAlertSound() {
+        var audio = new Audio("./sounds/alert.mp3");
+        audio.play();
+      }
+
+      //setInterval(updateValues, 60 * 1000);
+      updateValues();
+	// Loop to refresh values
+	for (let i = 1; i < 25; i++) {
+		// Update values every 5 min
+		setTimeout(function() { updateValues(); }, 60000 * (5*i));
+	}
+    </script>
+  </body>
+</html>
